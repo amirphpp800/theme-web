@@ -56,90 +56,8 @@ const promptsData = [
     }
 ];
 
-// Sample wallpapers data
-const wallpapersData = [
-    {
-        id: 1,
-        title: {
-            fa: "منظره کوهستانی",
-            en: "Mountain Landscape"
-        },
-        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
-        resolution: "4K (3840x2160)",
-        downloads: 1250,
-        type: "free",
-        price: null
-    },
-    {
-        id: 2,
-        title: {
-            fa: "شهر شبانه",
-            en: "Night City"
-        },
-        image: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&h=600&fit=crop",
-        resolution: "4K (3840x2160)",
-        downloads: 980,
-        type: "premium",
-        price: {
-            fa: "۵۰,۰۰۰ تومان",
-            en: "$5.99"
-        }
-    },
-    {
-        id: 3,
-        title: {
-            fa: "اقیانوس آرام",
-            en: "Peaceful Ocean"
-        },
-        image: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&h=600&fit=crop",
-        resolution: "4K (3840x2160)",
-        downloads: 2100,
-        type: "free",
-        price: null
-    },
-    {
-        id: 4,
-        title: {
-            fa: "جنگل پاییزی",
-            en: "Autumn Forest"
-        },
-        image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-        resolution: "4K (3840x2160)",
-        downloads: 1750,
-        type: "premium",
-        price: {
-            fa: "۳۰,۰۰۰ تومان",
-            en: "$3.99"
-        }
-    },
-    {
-        id: 5,
-        title: {
-            fa: "صحرای ستاره‌ای",
-            en: "Starry Desert"
-        },
-        image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=800&h=600&fit=crop",
-        resolution: "4K (3840x2160)",
-        downloads: 890,
-        type: "free",
-        price: null
-    },
-    {
-        id: 6,
-        title: {
-            fa: "معماری مینیمال",
-            en: "Minimal Architecture"
-        },
-        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop",
-        resolution: "4K (3840x2160)",
-        downloads: 1320,
-        type: "premium",
-        price: {
-            fa: "۴۰,۰۰۰ تومان",
-            en: "$4.99"
-        }
-    }
-];
+// Sample wallpapers data - empty by default
+const wallpapersData = [];
 
 // Global variables
 let currentLanguage = 'fa';
@@ -383,7 +301,10 @@ async function loadWallpapersFromAPI() {
 
 // Prompt rendering
 async function renderPrompts() {
-    promptsGrid.innerHTML = '';
+    // Clear existing content properly
+    while (promptsGrid.firstChild) {
+        promptsGrid.removeChild(promptsGrid.firstChild);
+    }
     
     const prompts = await loadPromptsFromAPI();
     
@@ -418,7 +339,7 @@ async function renderPrompts() {
         
         promptCard.innerHTML = `
             <div class="relative">
-                <img src="${prompt.image}" alt="${title}" class="w-full h-48 object-cover" 
+                <img src="${prompt.image}" alt="${title}" class="w-full h-48 object-contain bg-gray-50" 
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ci8+CjxwYXRoIGQ9Ik0xNzUgMTI1SDE2MjVWMTc1SDE3NVYxMjVaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPg=='; this.classList.add('image-placeholder');">
             </div>
             <div class="p-6">
@@ -801,7 +722,10 @@ function filterWallpapers(filter, wallpapers) {
 
 // Wallpaper rendering
 async function renderWallpapers() {
-    wallpapersGrid.innerHTML = '';
+    // Clear existing content properly
+    while (wallpapersGrid.firstChild) {
+        wallpapersGrid.removeChild(wallpapersGrid.firstChild);
+    }
     
     const wallpapers = await loadWallpapersFromAPI();
     const filtered = filterWallpapers(currentFilter, wallpapers);
@@ -851,7 +775,7 @@ async function renderWallpapers() {
         wallpaperCard.innerHTML = `
             <div class="relative">
                 <img src="${wallpaper.image}" alt="${title}" 
-                     class="w-full h-56 object-cover" 
+                     class="w-full h-56 object-contain bg-gray-50" 
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zNTAgMjUwSDQ1MFYzNTBIMzUwVjI1MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+'; this.classList.add('image-placeholder')">
                 <div class="absolute top-3 ${currentLanguage === 'fa' ? 'right-3' : 'left-3'}">
                     ${priceInfo}
