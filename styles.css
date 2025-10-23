@@ -354,3 +354,39 @@ header .user-avatar {
 .filter-btn:not(.active):hover {
     background-color: #f3f4f6 !important;
 }
+
+/* Password toggle button styles */
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.password-toggle:hover {
+    color: #4b5563;
+}
+
+/* RTL/LTR positioning for password toggle */
+[dir="rtl"] .password-toggle {
+    right: 0.75rem;
+    left: auto;
+}
+
+[dir="ltr"] .password-toggle {
+    left: 0.75rem;
+    right: auto;
+}
+
+/* Input padding adjustments for password fields */
+[dir="rtl"] .password-input {
+    padding-right: 3rem !important;
+    padding-left: 1rem !important;
+}
+
+[dir="ltr"] .password-input {
+    padding-left: 3rem !important;
+    padding-right: 1rem !important;
+}

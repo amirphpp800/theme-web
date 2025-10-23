@@ -13,6 +13,14 @@ const addWallpaperForm = document.getElementById('add-wallpaper-form');
 const wallpaperTypeSelect = document.getElementById('wallpaper-type');
 const priceSection = document.getElementById('price-section');
 
+// Image upload elements
+const imageTabBtns = document.querySelectorAll('.image-tab-btn');
+const wallpaperImageTabBtns = document.querySelectorAll('.wallpaper-image-tab-btn');
+const promptImageFile = document.getElementById('prompt-image-file');
+const wallpaperImageFile = document.getElementById('wallpaper-image-file');
+const promptRemoveFileBtn = document.getElementById('prompt-remove-file');
+const wallpaperRemoveFileBtn = document.getElementById('wallpaper-remove-file');
+
 // Check login status on page load
 document.addEventListener('DOMContentLoaded', () => {
     checkLoginStatus();
@@ -96,6 +104,12 @@ function setupEventListeners() {
     
     // Wallpaper type change
     wallpaperTypeSelect.addEventListener('change', togglePriceSection);
+    
+    // Image upload event listeners
+    setupImageUploadListeners();
+    
+    // Password visibility toggle
+    setupPasswordToggle();
 }
 
 async function handleLogin(event) {
@@ -178,13 +192,40 @@ function togglePriceSection() {
 async function handleAddPrompt(event) {
     event.preventDefault();
     
+    // Get image source (URL or uploaded file)
+    let imageSource = '';
+    const imageUrlInput = document.getElementById('prompt-image');
+    const imageFileInput = document.getElementById('prompt-image-file');
+    const activeTab = document.querySelector('.image-tab-btn.active')?.dataset.tab;
+    
+    if (activeTab === 'url') {
+        imageSource = imageUrlInput.value;
+        if (!imageSource) {
+            alert('لطفاً لینک تصویر را وارد کنید!');
+            return;
+        }
+    } else if (activeTab === 'upload') {
+        const file = imageFileInput.files[0];
+        if (!file) {
+            alert('لطفاً فایل تصویر را انتخاب کنید!');
+            return;
+        }
+        try {
+            imageSource = await fileToBase64(file);
+        } catch (error) {
+            alert('خطا در خواندن فایل!');
+            return;
+        }
+    }
+    
     const promptData = {
         title: {
             fa: document.getElementById('prompt-title-fa').value,
             en: document.getElementById('prompt-title-en').value
         },
         prompt: document.getElementById('prompt-text').value,
-        image: document.getElementById('prompt-image').value
+        image: imageSource,
+        imageType: activeTab // 'url' or 'upload'
     };
     
     try {
@@ -202,6 +243,7 @@ async function handleAddPrompt(event) {
         if (response.ok) {
             alert('پرامپت با موفقیت اضافه شد!');
             addPromptForm.reset();
+            resetImageUpload('prompt');
             loadPrompts();
         } else {
             alert(data.error || 'خطا در اضافه کردن پرامپت');
@@ -215,6 +257,32 @@ async function handleAddPrompt(event) {
 async function handleAddWallpaper(event) {
     event.preventDefault();
     
+    // Get image source (URL or uploaded file)
+    let imageSource = '';
+    const imageUrlInput = document.getElementById('wallpaper-image');
+    const imageFileInput = document.getElementById('wallpaper-image-file');
+    const activeTab = document.querySelector('.wallpaper-image-tab-btn.active')?.dataset.tab;
+    
+    if (activeTab === 'url') {
+        imageSource = imageUrlInput.value;
+        if (!imageSource) {
+            alert('لطفاً لینک تصویر را وارد کنید!');
+            return;
+        }
+    } else if (activeTab === 'upload') {
+        const file = imageFileInput.files[0];
+        if (!file) {
+            alert('لطفاً فایل تصویر را انتخاب کنید!');
+            return;
+        }
+        try {
+            imageSource = await fileToBase64(file);
+        } catch (error) {
+            alert('خطا در خواندن فایل!');
+            return;
+        }
+    }
+    
     const wallpaperType = document.getElementById('wallpaper-type').value;
     const price = wallpaperType === 'premium' ? parseInt(document.getElementById('wallpaper-price').value) : null;
     
@@ -223,7 +291,8 @@ async function handleAddWallpaper(event) {
             fa: document.getElementById('wallpaper-title-fa').value,
             en: document.getElementById('wallpaper-title-en').value
         },
-        image: document.getElementById('wallpaper-image').value,
+        image: imageSource,
+        imageType: activeTab, // 'url' or 'upload'
         type: wallpaperType,
         resolution: document.getElementById('wallpaper-resolution').value,
         price: price ? {
@@ -247,6 +316,7 @@ async function handleAddWallpaper(event) {
         if (response.ok) {
             alert('والپیپر با موفقیت اضافه شد!');
             addWallpaperForm.reset();
+            resetImageUpload('wallpaper');
             togglePriceSection();
             loadWallpapers();
         } else {
@@ -396,6 +466,203 @@ async function deleteWallpaper(wallpaperId) {
         console.error('Delete wallpaper error:', error);
         alert('خطا در حذف والپیپر');
     }
+}
+
+// Image upload functions
+function setupImageUploadListeners() {
+    // Prompt image tabs
+    imageTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchImageTab('prompt', btn.dataset.tab));
+    });
+    
+    // Wallpaper image tabs
+    wallpaperImageTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchImageTab('wallpaper', btn.dataset.tab));
+    });
+    
+    // File input changes
+    if (promptImageFile) {
+        promptImageFile.addEventListener('change', (e) => handleFileSelect(e, 'prompt'));
+    }
+    
+    if (wallpaperImageFile) {
+        wallpaperImageFile.addEventListener('change', (e) => handleFileSelect(e, 'wallpaper'));
+    }
+    
+    // Remove file buttons
+    if (promptRemoveFileBtn) {
+        promptRemoveFileBtn.addEventListener('click', () => removeFile('prompt'));
+    }
+    
+    if (wallpaperRemoveFileBtn) {
+        wallpaperRemoveFileBtn.addEventListener('click', () => removeFile('wallpaper'));
+    }
+    
+    // Drag and drop
+    setupDragAndDrop('prompt');
+    setupDragAndDrop('wallpaper');
+}
+
+function switchImageTab(type, tab) {
+    const tabBtns = type === 'prompt' ? imageTabBtns : wallpaperImageTabBtns;
+    const tabClass = type === 'prompt' ? 'image-input-tab' : 'wallpaper-image-input-tab';
+    
+    // Update tab buttons
+    tabBtns.forEach(btn => {
+        btn.classList.remove('active', 'bg-black', 'text-white');
+        btn.classList.add('text-gray-600');
+    });
+    
+    const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
+    if (activeBtn && tabBtns.length > 0) {
+        const targetBtn = Array.from(tabBtns).find(btn => btn.dataset.tab === tab);
+        if (targetBtn) {
+            targetBtn.classList.add('active', 'bg-black', 'text-white');
+            targetBtn.classList.remove('text-gray-600');
+        }
+    }
+    
+    // Update tab content
+    const urlTab = document.getElementById(`${type}-image-url-tab`);
+    const uploadTab = document.getElementById(`${type}-image-upload-tab`);
+    
+    if (tab === 'url') {
+        urlTab?.classList.remove('hidden');
+        uploadTab?.classList.add('hidden');
+    } else {
+        urlTab?.classList.add('hidden');
+        uploadTab?.classList.remove('hidden');
+    }
+}
+
+function handleFileSelect(event, type) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+        alert('لطفاً فقط فایل تصویری انتخاب کنید!');
+        return;
+    }
+    
+    const maxSize = type === 'wallpaper' ? 10 * 1024 * 1024 : 5 * 1024 * 1024; // 10MB for wallpapers, 5MB for prompts
+    if (file.size > maxSize) {
+        const maxSizeMB = maxSize / (1024 * 1024);
+        alert(`حجم فایل نباید بیشتر از ${maxSizeMB}MB باشد!`);
+        return;
+    }
+    
+    // Show preview
+    showFilePreview(file, type);
+}
+
+function showFilePreview(file, type) {
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const uploadArea = document.getElementById(`${type}-upload-area`);
+        const preview = document.getElementById(`${type}-upload-preview`);
+        const previewImg = document.getElementById(`${type}-preview-img`);
+        const fileName = document.getElementById(`${type}-file-name`);
+        
+        if (uploadArea && preview && previewImg && fileName) {
+            uploadArea.classList.add('hidden');
+            preview.classList.remove('hidden');
+            previewImg.src = e.target.result;
+            fileName.textContent = file.name;
+        }
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function removeFile(type) {
+    const fileInput = document.getElementById(`${type}-image-file`);
+    const uploadArea = document.getElementById(`${type}-upload-area`);
+    const preview = document.getElementById(`${type}-upload-preview`);
+    
+    if (fileInput) fileInput.value = '';
+    if (uploadArea) uploadArea.classList.remove('hidden');
+    if (preview) preview.classList.add('hidden');
+}
+
+function resetImageUpload(type) {
+    // Reset to URL tab
+    switchImageTab(type, 'url');
+    
+    // Clear URL input
+    const urlInput = document.getElementById(`${type}-image`);
+    if (urlInput) urlInput.value = '';
+    
+    // Clear file upload
+    removeFile(type);
+}
+
+function setupDragAndDrop(type) {
+    const uploadArea = document.getElementById(`${type}-upload-area`);
+    if (!uploadArea) return;
+    
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+    
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const fileInput = document.getElementById(`${type}-image-file`);
+            if (fileInput) {
+                fileInput.files = files;
+                handleFileSelect({ target: { files } }, type);
+            }
+        }
+    });
+}
+
+// Convert file to base64 for storage
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+// Password visibility toggle function for admin panel
+function setupPasswordToggle() {
+    const toggleBtn = document.getElementById('toggle-admin-password');
+    const passwordInput = document.getElementById('admin-password');
+    const eyeClosed = document.getElementById('admin-eye-closed');
+    const eyeOpen = document.getElementById('admin-eye-open');
+    
+    if (!toggleBtn || !passwordInput || !eyeClosed || !eyeOpen) {
+        return; // Elements not found, skip setup
+    }
+    
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        if (passwordInput.type === 'password') {
+            // Show password
+            passwordInput.type = 'text';
+            eyeClosed.classList.add('hidden');
+            eyeOpen.classList.remove('hidden');
+        } else {
+            // Hide password
+            passwordInput.type = 'password';
+            eyeClosed.classList.remove('hidden');
+            eyeOpen.classList.add('hidden');
+        }
+    });
 }
 
 // Initialize price section visibility

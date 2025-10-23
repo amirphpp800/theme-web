@@ -458,17 +458,32 @@ function handleContactForm(event) {
 // Authentication functions
 async function checkAuthStatus() {
     try {
-        const response = await fetch('/api/user/profile');
+        const userToken = localStorage.getItem('userToken');
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        if (userToken) {
+            headers['Authorization'] = `Bearer ${userToken}`;
+        }
+        
+        const response = await fetch('/api/user/profile', {
+            headers: headers
+        });
+        
         if (response.ok) {
             const data = await response.json();
             currentUser = data.user;
             updateAuthUI();
         } else {
+            // Clear invalid token
+            localStorage.removeItem('userToken');
             currentUser = null;
             updateAuthUI();
         }
     } catch (error) {
         console.error('Auth check failed:', error);
+        localStorage.removeItem('userToken');
         currentUser = null;
         updateAuthUI();
     }
@@ -527,6 +542,12 @@ async function handleLogin(event) {
         
         if (response.ok) {
             currentUser = data.user;
+            
+            // Store session token if provided
+            if (data.sessionToken) {
+                localStorage.setItem('userToken', data.sessionToken);
+            }
+            
             updateAuthUI();
             hideModal();
             alert(currentLanguage === 'fa' ? 'با موفقیت وارد شدید!' : 'Login successful!');
@@ -570,8 +591,24 @@ async function handleRegister(event) {
         const data = await response.json();
         
         if (response.ok) {
-            alert(currentLanguage === 'fa' ? 'حساب کاربری با موفقیت ایجاد شد!' : 'Account created successfully!');
-            showLoginForm();
+            // Check if auto-login is enabled
+            if (data.autoLogin && data.user) {
+                // Auto-login successful
+                currentUser = data.user;
+                updateAuthUI();
+                hideModal();
+                
+                // Store session token if provided
+                if (data.sessionToken) {
+                    localStorage.setItem('userToken', data.sessionToken);
+                }
+                
+                alert(currentLanguage === 'fa' ? 'حساب کاربری با موفقیت ایجاد شد و وارد سیستم شدید!' : 'Account created successfully and you are now logged in!');
+            } else {
+                // Fallback to manual login
+                alert(currentLanguage === 'fa' ? 'حساب کاربری با موفقیت ایجاد شد!' : 'Account created successfully!');
+                showLoginForm();
+            }
         } else {
             alert(data.error || (currentLanguage === 'fa' ? 'خطا در ثبت نام' : 'Registration failed'));
             generateCaptcha(); // Generate new captcha on error
@@ -592,12 +629,16 @@ async function handleLogout() {
         });
         
         if (response.ok) {
+            // Clear session token
+            localStorage.removeItem('userToken');
             currentUser = null;
             updateAuthUI();
             alert(currentLanguage === 'fa' ? 'با موفقیت خارج شدید!' : 'Logout successful!');
         }
     } catch (error) {
         console.error('Logout error:', error);
+        // Clear session token even if logout API fails
+        localStorage.removeItem('userToken');
         currentUser = null;
         updateAuthUI();
     }
@@ -877,6 +918,10 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshCaptchaBtn.addEventListener('click', generateCaptcha);
     }
     
+    // Password visibility toggle buttons
+    setupPasswordToggle('login');
+    setupPasswordToggle('register');
+    
     // Contact and About modal event listeners
     contactBtn.addEventListener('click', showContactModal);
     aboutBtn.addEventListener('click', showAboutModal);
@@ -948,3 +993,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Periodic state saving (every 30 seconds)
     setInterval(saveUserState, 30000);
 });
+
+// Password visibility toggle function
+function setupPasswordToggle(type) {
+    const toggleBtn = document.getElementById(`toggle-${type}-password`);
+    const passwordInput = document.getElementById(`${type}-password`);
+    const eyeClosed = document.getElementById(`${type}-eye-closed`);
+    const eyeOpen = document.getElementById(`${type}-eye-open`);
+    
+    if (!toggleBtn || !passwordInput || !eyeClosed || !eyeOpen) {
+        return; // Elements not found, skip setup
+    }
+    
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        if (passwordInput.type === 'password') {
+            // Show password
+            passwordInput.type = 'text';
+            eyeClosed.classList.add('hidden');
+            eyeOpen.classList.remove('hidden');
+        } else {
+            // Hide password
+            passwordInput.type = 'password';
+            eyeClosed.classList.remove('hidden');
+            eyeOpen.classList.add('hidden');
+        }
+    });
+}

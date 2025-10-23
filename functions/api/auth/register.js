@@ -45,14 +45,33 @@ export async function onRequestPost(context) {
         await env.DB.put(`user:${phone}`, JSON.stringify(user));
         await env.DB.put(`user_by_id:${user.id}`, JSON.stringify(user));
         
-        // Return success (don't send password back)
+        // Generate session token for auto-login
+        const sessionToken = crypto.randomUUID();
+        const session = {
+            userId: user.id,
+            phone: user.phone,
+            createdAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+        };
+        
+        // Store session in KV
+        await env.DB.put(`session:${sessionToken}`, JSON.stringify(session), {
+            expirationTtl: 7 * 24 * 60 * 60 // 7 days in seconds
+        });
+        
+        // Return success with session token (don't send password back)
         const { password: _, ...userResponse } = user;
         return new Response(JSON.stringify({ 
             success: true, 
-            user: userResponse 
+            user: userResponse,
+            sessionToken,
+            autoLogin: true
         }), {
             status: 201,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Set-Cookie': `session=${sessionToken}; HttpOnly; Secure; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`
+            }
         });
         
     } catch (error) {
