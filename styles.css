@@ -1,0 +1,356 @@
+/* Clean iPhone-like design styles */
+
+/* Smooth transitions for all elements */
+* {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Simple fade-in for cards */
+.prompt-card, .wallpaper-card {
+    opacity: 1;
+    transform: none;
+}
+
+/* Section visibility with smooth transitions */
+.section {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    width: 100%;
+    pointer-events: none;
+}
+
+.section.active {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+    pointer-events: auto;
+}
+
+/* Smooth page transition container */
+main {
+    position: relative;
+    min-height: 60vh;
+}
+
+/* Navigation styles - iPhone-like segmented control */
+.nav-btn {
+    transition: all 0.2s ease;
+}
+
+.nav-btn.active {
+    background-color: black !important;
+    color: white !important;
+}
+
+.nav-btn:not(.active) {
+    color: #6b7280 !important;
+}
+
+.nav-btn:not(.active):hover {
+    background-color: #f3f4f6 !important;
+    color: black !important;
+}
+
+/* Card hover effects - subtle and organized */
+.prompt-card, .wallpaper-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border-radius: 1.5rem;
+    background: white;
+    border: 1px solid #f3f4f6;
+}
+
+.prompt-card:hover, .wallpaper-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+}
+
+.prompt-card img, .wallpaper-card img {
+    transition: none;
+}
+
+/* Copy button animation - simplified */
+.copy-btn {
+    transition: all 0.2s ease;
+    border-radius: 1rem;
+}
+
+.copy-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.copy-btn.copied {
+    background-color: #10b981 !important;
+    color: white !important;
+}
+
+/* Price badge styles - static and clean */
+.price-badge, .free-badge {
+    border-radius: 1rem;
+}
+
+.price-badge {
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+}
+
+.free-badge {
+    background: linear-gradient(135deg, #A9B689 0%, #8fa06b 100%);
+}
+
+/* Loading animation */
+.loading {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .5;
+    }
+}
+
+/* Custom scrollbar - minimal design */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Image placeholder */
+.image-placeholder {
+    background: linear-gradient(45deg, #f9fafb 25%, transparent 25%), 
+                linear-gradient(-45deg, #f9fafb 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f9fafb 75%), 
+                linear-gradient(-45deg, transparent 75%, #f9fafb 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* Language toggle styles */
+#lang-toggle {
+    font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Font switching for English */
+.en-font {
+    font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.en-font * {
+    font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* Enhance readability for Apple system font */
+.en-font {
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+}
+
+.en-font h1, .en-font h2, .en-font h3 {
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.en-font button {
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 2.5rem;
+    }
+    
+    .nav-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .prompt-card, .wallpaper-card {
+        border-radius: 1rem;
+    }
+}
+
+@media (max-width: 640px) {
+    h2 {
+        font-size: 2rem;
+    }
+    
+    .grid {
+        gap: 1rem;
+    }
+}
+
+/* RTL/LTR specific adjustments */
+[dir="rtl"] .space-x-reverse > * + * {
+    margin-right: 1rem;
+    margin-left: 0;
+}
+
+[dir="rtl"] .space-x-4 > * + * {
+    margin-right: 1rem;
+    margin-left: 0;
+}
+
+[dir="rtl"] .space-x-8 > * + * {
+    margin-right: 2rem;
+    margin-left: 0;
+}
+
+[dir="ltr"] .space-x-4 > * + * {
+    margin-left: 1rem;
+    margin-right: 0;
+}
+
+[dir="ltr"] .space-x-8 > * + * {
+    margin-left: 2rem;
+    margin-right: 0;
+}
+
+/* Clean input styles */
+input[type="text"] {
+    border-radius: 1rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+}
+
+input[type="text"]:focus {
+    border-color: black;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Button styles - simplified */
+button {
+    border-radius: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Language toggle - clean design */
+#lang-toggle {
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+}
+
+#lang-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* No header animations - clean and immediate */
+header, nav, h1, h2, p {
+    opacity: 1;
+    transform: none;
+}
+
+/* Header specific styles */
+header .logo-icon {
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+}
+
+header .auth-container {
+    background: rgba(249, 250, 251, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+header .user-avatar {
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+}
+
+/* Language toggle improvements */
+#lang-toggle {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+
+#lang-toggle:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Country select responsive improvements */
+#country-select, #login-country-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.25rem center;
+    background-repeat: no-repeat;
+    background-size: 1em 1em;
+    padding-right: 1.5rem;
+}
+
+/* Mobile phone field improvements */
+@media (max-width: 640px) {
+    #country-select, #login-country-select {
+        font-size: 12px;
+        padding-left: 0.5rem;
+        padding-right: 1.25rem;
+        background-size: 0.75em 0.75em;
+        background-position: right 0.25rem center;
+    }
+    
+    #register-phone {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Stack phone fields vertically on mobile */
+    .phone-field-container {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .phone-field-container > * {
+        width: 100%;
+    }
+}
+
+/* Filter button styles - clean and organized */
+.filter-btn {
+    transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+    background-color: black !important;
+    color: white !important;
+}
+
+.filter-btn:not(.active):hover {
+    background-color: #f3f4f6 !important;
+}
