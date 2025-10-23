@@ -363,30 +363,23 @@ header .user-avatar {
     color: #9ca3af;
     cursor: pointer;
     z-index: 10;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
 .password-toggle:hover {
     color: #4b5563;
+    transform: translateY(-50%);
 }
 
 /* RTL/LTR positioning for password toggle */
-[dir="rtl"] .password-toggle {
-    right: 0.75rem;
-    left: auto;
-}
-
-[dir="ltr"] .password-toggle {
-    left: 0.75rem;
-    right: auto;
-}
-
-/* Input padding adjustments for password fields */
 [dir="rtl"] .password-input {
     padding-right: 3rem !important;
     padding-left: 1rem !important;
 }
 
 [dir="ltr"] .password-input {
-    padding-left: 3rem !important;
-    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+    padding-right: 3rem !important;
 }

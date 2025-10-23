@@ -1,8 +1,145 @@
-// Sample prompts data - empty by default
-const promptsData = [];
+// Sample prompts data
+const promptsData = [
+    {
+        id: 1,
+        title: {
+            fa: "منظره طبیعی رویایی",
+            en: "Dreamy Landscape"
+        },
+        prompt: "A breathtaking sunset over rolling hills, golden hour lighting, cinematic composition, ultra detailed, 8k resolution",
+        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop"
+    },
+    {
+        id: 2,
+        title: {
+            fa: "پرتره هنری",
+            en: "Artistic Portrait"
+        },
+        prompt: "Professional portrait photography, soft lighting, shallow depth of field, elegant composition, high quality, detailed face",
+        image: "https://images.unsplash.com/photo-1494790108755-2616c0763c0c?w=400&h=300&fit=crop"
+    },
+    {
+        id: 3,
+        title: {
+            fa: "معماری مدرن",
+            en: "Modern Architecture"
+        },
+        prompt: "Modern architectural design, clean lines, glass and steel, minimalist style, professional photography, award winning",
+        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop"
+    },
+    {
+        id: 4,
+        title: {
+            fa: "هنر انتزاعی",
+            en: "Abstract Art"
+        },
+        prompt: "Abstract digital art, vibrant colors, fluid shapes, modern composition, high contrast, artistic masterpiece",
+        image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop"
+    },
+    {
+        id: 5,
+        title: {
+            fa: "طبیعت وحشی",
+            en: "Wildlife Nature"
+        },
+        prompt: "Wildlife photography, majestic animal in natural habitat, golden hour, professional camera, National Geographic style",
+        image: "https://images.unsplash.com/photo-1549366021-9f761d040a94?w=400&h=300&fit=crop"
+    },
+    {
+        id: 6,
+        title: {
+            fa: "فضای کیهانی",
+            en: "Cosmic Space"
+        },
+        prompt: "Deep space photography, nebula and stars, cosmic colors, ultra high resolution, astronomical beauty, NASA quality",
+        image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop"
+    }
+];
 
-// Sample wallpapers data - empty by default  
-const wallpapersData = [];
+// Sample wallpapers data
+const wallpapersData = [
+    {
+        id: 1,
+        title: {
+            fa: "منظره کوهستانی",
+            en: "Mountain Landscape"
+        },
+        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+        resolution: "4K (3840x2160)",
+        downloads: 1250,
+        type: "free",
+        price: null
+    },
+    {
+        id: 2,
+        title: {
+            fa: "شهر شبانه",
+            en: "Night City"
+        },
+        image: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&h=600&fit=crop",
+        resolution: "4K (3840x2160)",
+        downloads: 980,
+        type: "premium",
+        price: {
+            fa: "۵۰,۰۰۰ تومان",
+            en: "$5.99"
+        }
+    },
+    {
+        id: 3,
+        title: {
+            fa: "اقیانوس آرام",
+            en: "Peaceful Ocean"
+        },
+        image: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&h=600&fit=crop",
+        resolution: "4K (3840x2160)",
+        downloads: 2100,
+        type: "free",
+        price: null
+    },
+    {
+        id: 4,
+        title: {
+            fa: "جنگل پاییزی",
+            en: "Autumn Forest"
+        },
+        image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
+        resolution: "4K (3840x2160)",
+        downloads: 1750,
+        type: "premium",
+        price: {
+            fa: "۳۰,۰۰۰ تومان",
+            en: "$3.99"
+        }
+    },
+    {
+        id: 5,
+        title: {
+            fa: "صحرای ستاره‌ای",
+            en: "Starry Desert"
+        },
+        image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=800&h=600&fit=crop",
+        resolution: "4K (3840x2160)",
+        downloads: 890,
+        type: "free",
+        price: null
+    },
+    {
+        id: 6,
+        title: {
+            fa: "معماری مینیمال",
+            en: "Minimal Architecture"
+        },
+        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&h=600&fit=crop",
+        resolution: "4K (3840x2160)",
+        downloads: 1320,
+        type: "premium",
+        price: {
+            fa: "۴۰,۰۰۰ تومان",
+            en: "$4.99"
+        }
+    }
+];
 
 // Global variables
 let currentLanguage = 'fa';
@@ -794,7 +931,8 @@ async function downloadWallpaper(id) {
         return;
     }
     
-    const wallpaper = wallpapersData.find(w => w.id === id);
+    const wallpapers = await loadWallpapersFromAPI();
+    const wallpaper = wallpapers.find(w => w.id === id);
     if (!wallpaper) return;
     
     try {
@@ -994,30 +1132,3 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(saveUserState, 30000);
 });
 
-// Password visibility toggle function
-function setupPasswordToggle(type) {
-    const toggleBtn = document.getElementById(`toggle-${type}-password`);
-    const passwordInput = document.getElementById(`${type}-password`);
-    const eyeClosed = document.getElementById(`${type}-eye-closed`);
-    const eyeOpen = document.getElementById(`${type}-eye-open`);
-    
-    if (!toggleBtn || !passwordInput || !eyeClosed || !eyeOpen) {
-        return; // Elements not found, skip setup
-    }
-    
-    toggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        if (passwordInput.type === 'password') {
-            // Show password
-            passwordInput.type = 'text';
-            eyeClosed.classList.add('hidden');
-            eyeOpen.classList.remove('hidden');
-        } else {
-            // Hide password
-            passwordInput.type = 'password';
-            eyeClosed.classList.remove('hidden');
-            eyeOpen.classList.add('hidden');
-        }
-    });
-}
