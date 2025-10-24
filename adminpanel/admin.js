@@ -40,14 +40,14 @@ async function checkSystemStatus() {
     try {
         const response = await fetch('/api/admin/status');
         const data = await response.json();
-        
+
         updateStatusIndicator('kv-status', data.status.kv.connected, 
             data.status.kv.connected ? 'متصل' : 'قطع', 
             data.status.kv.error);
-            
+
         updateStatusIndicator('admin-config-status', data.status.adminConfig.configured, 
             data.status.adminConfig.configured ? 'تعریف شده' : 'تعریف نشده');
-            
+
     } catch (error) {
         console.error('Failed to check system status:', error);
         updateStatusIndicator('kv-status', false, 'خطا در بررسی');
@@ -58,13 +58,13 @@ async function checkSystemStatus() {
 function updateStatusIndicator(elementId, isSuccess, statusText, errorMessage = null) {
     const element = document.getElementById(elementId);
     if (!element) return;
-    
+
     const dot = element.querySelector('.w-2.h-2');
     const text = element.querySelector('span');
-    
+
     // Remove animation
     dot.classList.remove('animate-pulse', 'bg-gray-400');
-    
+
     if (isSuccess) {
         dot.classList.add('bg-green-500');
         text.textContent = statusText;
@@ -73,7 +73,7 @@ function updateStatusIndicator(elementId, isSuccess, statusText, errorMessage = 
         dot.classList.add('bg-red-500');
         text.textContent = statusText;
         text.className = 'text-red-600 font-medium';
-        
+
         if (errorMessage) {
             text.title = errorMessage;
         }
@@ -83,41 +83,41 @@ function updateStatusIndicator(elementId, isSuccess, statusText, errorMessage = 
 function setupEventListeners() {
     // Login form
     adminLoginForm.addEventListener('submit', handleLogin);
-    
+
     // Logout button
     logoutBtn.addEventListener('click', handleLogout);
-    
+
     // Refresh status button
     const refreshStatusBtn = document.getElementById('refresh-status');
     if (refreshStatusBtn) {
         refreshStatusBtn.addEventListener('click', checkSystemStatus);
     }
-    
+
     // Tab switching
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
-    
+
     // Forms
     addPromptForm.addEventListener('submit', handleAddPrompt);
     addWallpaperForm.addEventListener('submit', handleAddWallpaper);
-    
+
     // Wallpaper type change
     wallpaperTypeSelect.addEventListener('change', togglePriceSection);
-    
+
     // Image upload event listeners
     setupImageUploadListeners();
-    
+
     // Password visibility toggle
     setupPasswordToggle();
 }
 
 async function handleLogin(event) {
     event.preventDefault();
-    
+
     const username = document.getElementById('admin-username').value;
     const password = document.getElementById('admin-password').value;
-    
+
     try {
         const response = await fetch('/api/admin/login', {
             method: 'POST',
@@ -126,9 +126,9 @@ async function handleLogin(event) {
             },
             body: JSON.stringify({ username, password })
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             localStorage.setItem('adminToken', data.token);
             showAdminPanel();
@@ -167,16 +167,16 @@ function switchTab(tabName) {
         btn.classList.remove('active', 'bg-black', 'text-white');
         btn.classList.add('text-gray-600');
     });
-    
+
     const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
     activeBtn.classList.add('active', 'bg-black', 'text-white');
     activeBtn.classList.remove('text-gray-600');
-    
+
     // Update tab content
     tabContents.forEach(content => {
         content.classList.add('hidden');
     });
-    
+
     document.getElementById(`${tabName}-tab`).classList.remove('hidden');
 }
 
@@ -194,25 +194,25 @@ let addPromptRequestId = null;
 
 async function handleAddPrompt(event) {
     event.preventDefault();
-    
+
     // Prevent multiple submissions
     const submitBtn = event.target.querySelector('button[type="submit"]');
     if (submitBtn.disabled || addPromptRequestId) return;
-    
+
     // Generate unique request ID
     addPromptRequestId = Date.now() + Math.random();
     const currentRequestId = addPromptRequestId;
-    
+
     submitBtn.disabled = true;
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'در حال اضافه کردن...';
-    
+
     // Get image source (URL or uploaded file)
     let imageSource = '';
     const imageUrlInput = document.getElementById('prompt-image');
     const imageFileInput = document.getElementById('prompt-image-file');
     const activeTab = document.querySelector('.image-tab-btn.active')?.dataset.tab;
-    
+
     if (activeTab === 'url') {
         imageSource = imageUrlInput.value;
         if (!imageSource) {
@@ -228,11 +228,15 @@ async function handleAddPrompt(event) {
         try {
             imageSource = await fileToBase64(file);
         } catch (error) {
-            alert('خطا در خواندن فایل!');
+            console.error('File read error:', error);
+            alert('خطا در خواندن فایل: ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            addPromptRequestId = null;
             return;
         }
     }
-    
+
     const promptData = {
         title: {
             fa: document.getElementById('prompt-title-fa').value,
@@ -242,11 +246,11 @@ async function handleAddPrompt(event) {
         image: imageSource,
         imageType: activeTab // 'url' or 'upload'
     };
-    
+
     try {
         // Check if this request is still valid
         if (currentRequestId !== addPromptRequestId) return;
-        
+
         const response = await fetch('/api/admin/prompts', {
             method: 'POST',
             headers: {
@@ -256,12 +260,12 @@ async function handleAddPrompt(event) {
             },
             body: JSON.stringify(promptData)
         });
-        
+
         // Check again after request
         if (currentRequestId !== addPromptRequestId) return;
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             alert('پرامپت با موفقیت اضافه شد!');
             addPromptForm.reset();
@@ -288,26 +292,26 @@ let addWallpaperRequestId = null;
 
 async function handleAddWallpaper(event) {
     event.preventDefault();
-    
+
     // Prevent multiple submissions
     const submitBtn = event.target.querySelector('button[type="submit"]');
     if (submitBtn.disabled || addWallpaperRequestId) return;
-    
+
     // Generate unique request ID
     addWallpaperRequestId = Date.now() + Math.random();
     const currentRequestId = addWallpaperRequestId;
-    
+
     submitBtn.disabled = true;
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'در حال اضافه کردن...';
-    
+
     // Get image source (URL or uploaded file)
     let imageSource = '';
     let downloadUrl = '';
     const imageUrlInput = document.getElementById('wallpaper-image');
     const imageFileInput = document.getElementById('wallpaper-image-file');
     const activeTab = document.querySelector('.wallpaper-image-tab-btn.active')?.dataset.tab;
-    
+
     if (activeTab === 'url') {
         imageSource = imageUrlInput.value;
         downloadUrl = imageSource; // For URL, download URL is the same
@@ -321,13 +325,13 @@ async function handleAddWallpaper(event) {
             alert('لطفاً فایل را انتخاب کنید!');
             return;
         }
-        
+
         // Upload file directly
         try {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('type', 'wallpaper');
-            
+
             const uploadResponse = await fetch('/api/admin/upload', {
                 method: 'POST',
                 headers: {
@@ -335,24 +339,24 @@ async function handleAddWallpaper(event) {
                 },
                 body: formData
             });
-            
+
             if (!uploadResponse.ok) {
                 throw new Error('خطا در آپلود فایل');
             }
-            
+
             const uploadData = await uploadResponse.json();
             imageSource = uploadData.imageUrl; // For preview
             downloadUrl = uploadData.downloadUrl; // For actual download
-            
+
         } catch (error) {
             alert('خطا در آپلود فایل: ' + error.message);
             return;
         }
     }
-    
+
     const wallpaperType = document.getElementById('wallpaper-type').value;
     const price = wallpaperType === 'premium' ? parseInt(document.getElementById('wallpaper-price').value) : null;
-    
+
     const wallpaperData = {
         title: {
             fa: document.getElementById('wallpaper-title-fa').value,
@@ -368,7 +372,7 @@ async function handleAddWallpaper(event) {
             en: `${price} IRR`
         } : null
     };
-    
+
     try {
         const response = await fetch('/api/admin/wallpapers', {
             method: 'POST',
@@ -378,9 +382,9 @@ async function handleAddWallpaper(event) {
             },
             body: JSON.stringify(wallpaperData)
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             alert('والپیپر با موفقیت اضافه شد!');
             addWallpaperForm.reset();
@@ -401,7 +405,7 @@ async function handleAddWallpaper(event) {
 
 async function loadExistingContent() {
     if (!isLoggedIn) return;
-    
+
     await loadPrompts();
     await loadWallpapers();
 }
@@ -413,9 +417,9 @@ async function loadPrompts() {
                 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             displayPrompts(data.prompts);
         }
@@ -431,9 +435,9 @@ async function loadWallpapers() {
                 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (response.ok) {
             displayWallpapers(data.wallpapers);
         }
@@ -445,7 +449,7 @@ async function loadWallpapers() {
 function displayPrompts(prompts) {
     const promptsList = document.getElementById('prompts-list');
     promptsList.innerHTML = '';
-    
+
     prompts.forEach(prompt => {
         const promptElement = document.createElement('div');
         promptElement.className = 'flex items-center justify-between p-4 border border-gray-200 rounded-2xl';
@@ -468,7 +472,7 @@ function displayPrompts(prompts) {
 function displayWallpapers(wallpapers) {
     const wallpapersList = document.getElementById('wallpapers-list');
     wallpapersList.innerHTML = '';
-    
+
     wallpapers.forEach(wallpaper => {
         const wallpaperElement = document.createElement('div');
         wallpaperElement.className = 'bg-gray-50 rounded-2xl p-4';
@@ -494,17 +498,17 @@ async function deletePrompt(promptId) {
         alert('شناسه پرامپت نامعتبر است');
         return;
     }
-    
+
     if (!confirm('آیا مطمئن هستید که می‌خواهید این پرامپت را حذف کنید؟')) {
         return;
     }
-    
+
     const token = localStorage.getItem('adminToken');
     if (!token) {
         alert('لطفاً مجدداً وارد شوید');
         return;
     }
-    
+
     try {
         const response = await fetch(`/api/admin/prompts/${encodeURIComponent(promptId)}`, {
             method: 'DELETE',
@@ -514,7 +518,7 @@ async function deletePrompt(promptId) {
                 'Cache-Control': 'no-cache'
             }
         });
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             let errorData;
@@ -525,11 +529,11 @@ async function deletePrompt(promptId) {
             }
             throw new Error(errorData.error || 'خطا در حذف پرامپت');
         }
-        
+
         const data = await response.json();
         alert('پرامپت با موفقیت حذف شد!');
         await loadPrompts();
-        
+
     } catch (error) {
         console.error('Delete prompt error:', error);
         alert(`خطا در حذف پرامپت: ${error.message}`);
@@ -541,17 +545,17 @@ async function deleteWallpaper(wallpaperId) {
         alert('شناسه والپیپر نامعتبر است');
         return;
     }
-    
+
     if (!confirm('آیا مطمئن هستید که می‌خواهید این والپیپر را حذف کنید؟')) {
         return;
     }
-    
+
     const token = localStorage.getItem('adminToken');
     if (!token) {
         alert('لطفاً مجدداً وارد شوید');
         return;
     }
-    
+
     try {
         const response = await fetch(`/api/admin/wallpapers/${encodeURIComponent(wallpaperId)}`, {
             method: 'DELETE',
@@ -561,7 +565,7 @@ async function deleteWallpaper(wallpaperId) {
                 'Cache-Control': 'no-cache'
             }
         });
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             let errorData;
@@ -572,11 +576,11 @@ async function deleteWallpaper(wallpaperId) {
             }
             throw new Error(errorData.error || 'خطا در حذف والپیپر');
         }
-        
+
         const data = await response.json();
         alert('والپیپر با موفقیت حذف شد!');
         await loadWallpapers();
-        
+
     } catch (error) {
         console.error('Delete wallpaper error:', error);
         alert(`خطا در حذف والپیپر: ${error.message}`);
@@ -589,30 +593,30 @@ function setupImageUploadListeners() {
     imageTabBtns.forEach(btn => {
         btn.addEventListener('click', () => switchImageTab('prompt', btn.dataset.tab));
     });
-    
+
     // Wallpaper image tabs
     wallpaperImageTabBtns.forEach(btn => {
         btn.addEventListener('click', () => switchImageTab('wallpaper', btn.dataset.tab));
     });
-    
+
     // File input changes
     if (promptImageFile) {
         promptImageFile.addEventListener('change', (e) => handleFileSelect(e, 'prompt'));
     }
-    
+
     if (wallpaperImageFile) {
         wallpaperImageFile.addEventListener('change', (e) => handleFileSelect(e, 'wallpaper'));
     }
-    
+
     // Remove file buttons
     if (promptRemoveFileBtn) {
         promptRemoveFileBtn.addEventListener('click', () => removeFile('prompt'));
     }
-    
+
     if (wallpaperRemoveFileBtn) {
         wallpaperRemoveFileBtn.addEventListener('click', () => removeFile('wallpaper'));
     }
-    
+
     // Drag and drop
     setupDragAndDrop('prompt');
     setupDragAndDrop('wallpaper');
@@ -621,13 +625,13 @@ function setupImageUploadListeners() {
 function switchImageTab(type, tab) {
     const tabBtns = type === 'prompt' ? imageTabBtns : wallpaperImageTabBtns;
     const tabClass = type === 'prompt' ? 'image-input-tab' : 'wallpaper-image-input-tab';
-    
+
     // Update tab buttons
     tabBtns.forEach(btn => {
         btn.classList.remove('active', 'bg-black', 'text-white');
         btn.classList.add('text-gray-600');
     });
-    
+
     const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
     if (activeBtn && tabBtns.length > 0) {
         const targetBtn = Array.from(tabBtns).find(btn => btn.dataset.tab === tab);
@@ -636,11 +640,11 @@ function switchImageTab(type, tab) {
             targetBtn.classList.remove('text-gray-600');
         }
     }
-    
+
     // Update tab content
     const urlTab = document.getElementById(`${type}-image-url-tab`);
     const uploadTab = document.getElementById(`${type}-image-upload-tab`);
-    
+
     if (tab === 'url') {
         urlTab?.classList.remove('hidden');
         uploadTab?.classList.add('hidden');
@@ -653,7 +657,7 @@ function switchImageTab(type, tab) {
 function handleFileSelect(event, type) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     // Different validation for different types
     if (type === 'prompt') {
         // Prompts still need images only
@@ -674,7 +678,7 @@ function handleFileSelect(event, type) {
             return;
         }
     }
-    
+
     // Show preview
     showFilePreview(file, type);
 }
@@ -683,27 +687,27 @@ function showFilePreview(file, type) {
     const uploadArea = document.getElementById(`${type}-upload-area`);
     const preview = document.getElementById(`${type}-upload-preview`);
     const fileName = document.getElementById(`${type}-file-name`);
-    
+
     if (!uploadArea || !preview || !fileName) return;
-    
+
     uploadArea.classList.add('hidden');
     preview.classList.remove('hidden');
     fileName.textContent = file.name;
-    
+
     // Show file size if element exists
     const fileSize = document.getElementById(`${type}-file-size`);
     if (fileSize) {
         const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
         fileSize.textContent = `حجم: ${sizeMB} مگابایت`;
     }
-    
+
     // Handle different file types for preview
     if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const previewImg = document.getElementById(`${type}-preview-img`);
             const fileIcon = document.getElementById(`${type}-file-icon`);
-            
+
             if (previewImg && fileIcon) {
                 previewImg.src = e.target.result;
                 previewImg.classList.remove('hidden');
@@ -715,7 +719,7 @@ function showFilePreview(file, type) {
         // For non-image files, show file icon
         const previewImg = document.getElementById(`${type}-preview-img`);
         const fileIcon = document.getElementById(`${type}-file-icon`);
-        
+
         if (previewImg && fileIcon) {
             previewImg.classList.add('hidden');
             fileIcon.classList.remove('hidden');
@@ -727,7 +731,7 @@ function removeFile(type) {
     const fileInput = document.getElementById(`${type}-image-file`);
     const uploadArea = document.getElementById(`${type}-upload-area`);
     const preview = document.getElementById(`${type}-upload-preview`);
-    
+
     if (fileInput) fileInput.value = '';
     if (uploadArea) uploadArea.classList.remove('hidden');
     if (preview) preview.classList.add('hidden');
@@ -736,11 +740,11 @@ function removeFile(type) {
 function resetImageUpload(type) {
     // Reset to URL tab
     switchImageTab(type, 'url');
-    
+
     // Clear URL input
     const urlInput = document.getElementById(`${type}-image`);
     if (urlInput) urlInput.value = '';
-    
+
     // Clear file upload
     removeFile(type);
 }
@@ -748,21 +752,21 @@ function resetImageUpload(type) {
 function setupDragAndDrop(type) {
     const uploadArea = document.getElementById(`${type}-upload-area`);
     if (!uploadArea) return;
-    
+
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.classList.add('drag-over');
     });
-    
+
     uploadArea.addEventListener('dragleave', (e) => {
         e.preventDefault();
         uploadArea.classList.remove('drag-over');
     });
-    
+
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadArea.classList.remove('drag-over');
-        
+
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             const fileInput = document.getElementById(`${type}-image-file`);
@@ -790,26 +794,29 @@ function setupPasswordToggle() {
     const passwordInput = document.getElementById('admin-password');
     const eyeClosed = document.getElementById('admin-eye-closed');
     const eyeOpen = document.getElementById('admin-eye-open');
-    
-    if (!toggleBtn || !passwordInput || !eyeClosed || !eyeOpen) {
-        return; // Elements not found, skip setup
+
+    if (toggleBtn && passwordInput && eyeClosed && eyeOpen) {
+        // Prevent form submission when clicking toggle
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeClosed.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
+                toggleBtn.setAttribute('aria-label', 'مخفی کردن رمز عبور');
+            } else {
+                passwordInput.type = 'password';
+                eyeClosed.classList.remove('hidden');
+                eyeOpen.classList.add('hidden');
+                toggleBtn.setAttribute('aria-label', 'نمایش رمز عبور');
+            }
+        });
+
+        // Set initial aria-label
+        toggleBtn.setAttribute('aria-label', 'نمایش رمز عبور');
     }
-    
-    toggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        if (passwordInput.type === 'password') {
-            // Show password
-            passwordInput.type = 'text';
-            eyeClosed.classList.add('hidden');
-            eyeOpen.classList.remove('hidden');
-        } else {
-            // Hide password
-            passwordInput.type = 'password';
-            eyeClosed.classList.remove('hidden');
-            eyeOpen.classList.add('hidden');
-        }
-    });
 }
 
 // Initialize price section visibility

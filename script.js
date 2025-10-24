@@ -10,6 +10,7 @@ let currentFilter = 'all';
 let currentUser = null;
 let currentCaptcha = '';
 let authLoading = false; // Added to manage authentication loading state
+let currentSection = 'prompts'; // Track current section for localStorage
 const langToggle = document.getElementById('lang-toggle');
 const langText = document.getElementById('lang-text');
 const navButtons = document.querySelectorAll('.nav-btn');
@@ -140,6 +141,75 @@ const closeContactModal = document.getElementById('close-contact-modal');
 const closeAboutModal = document.getElementById('close-about-modal');
 const contactForm = document.getElementById('contact-form');
 
+// Local Storage Management
+function saveUserState() {
+    const userState = {
+        currentSection: currentSection,
+        currentFilter: currentFilter,
+        currentLanguage: currentLanguage,
+        timestamp: Date.now()
+    };
+    localStorage.setItem('userState', JSON.stringify(userState));
+}
+
+function loadUserState() {
+    try {
+        const savedState = localStorage.getItem('userState');
+        if (!savedState) return;
+
+        const userState = JSON.parse(savedState);
+        
+        // Check if state is not too old (24 hours)
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+        if (Date.now() - userState.timestamp > maxAge) {
+            localStorage.removeItem('userState');
+            return;
+        }
+
+        // Restore state
+        if (userState.currentSection) {
+            currentSection = userState.currentSection;
+        }
+        if (userState.currentFilter) {
+            currentFilter = userState.currentFilter;
+        }
+        if (userState.currentLanguage) {
+            currentLanguage = userState.currentLanguage;
+        }
+
+        // Apply the restored state to UI
+        setTimeout(() => {
+            restoreUIState();
+        }, 100);
+
+    } catch (error) {
+        console.error('خطا در بازیابی وضعیت کاربر:', error);
+        localStorage.removeItem('userState');
+    }
+}
+
+function restoreUIState() {
+    // Restore section
+    switchSection(currentSection);
+    
+    // Restore filter
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+        btn.classList.remove('active', 'bg-black', 'text-white');
+        btn.classList.add('bg-gray-100', 'text-gray-700');
+        
+        if (btn.dataset.filter === currentFilter) {
+            btn.classList.add('active', 'bg-black', 'text-white');
+            btn.classList.remove('bg-gray-100', 'text-gray-700');
+        }
+    });
+    
+    // Re-render content with restored filter
+    if (currentSection === 'wallpapers') {
+        renderWallpapers();
+    }
+}
+
 // Language management
 function initLanguage() {
     const savedLang = localStorage.getItem('language') || 'fa';
@@ -151,6 +221,7 @@ function toggleLanguage() {
     currentLanguage = currentLanguage === 'fa' ? 'en' : 'fa';
     localStorage.setItem('language', currentLanguage);
     updateLanguage();
+    saveUserState(); // Save state when language changes
 }
 
 function updateLanguage() {
@@ -215,6 +286,9 @@ function validateCaptcha(userInput) {
 
 // Navigation management
 function switchSection(targetSection) {
+    // Update current section
+    currentSection = targetSection;
+    
     // Hide all sections
     sections.forEach(section => {
         section.classList.remove('active');
@@ -241,6 +315,9 @@ function switchSection(targetSection) {
         activeBtn.style.backgroundColor = 'black';
         activeBtn.style.color = 'white';
     }
+    
+    // Save state when section changes
+    saveUserState();
 }
 
 // API caching
@@ -625,17 +702,26 @@ function setupPasswordToggle(formType) {
     const eyeOpen = document.getElementById(`${formType}-eye-open`);
 
     if (toggleBtn && passwordInput && eyeClosed && eyeOpen) {
-        toggleBtn.addEventListener('click', () => {
+        // Prevent form submission when clicking toggle
+        toggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 eyeClosed.classList.add('hidden');
                 eyeOpen.classList.remove('hidden');
+                toggleBtn.setAttribute('aria-label', 'مخفی کردن رمز عبور');
             } else {
                 passwordInput.type = 'password';
                 eyeClosed.classList.remove('hidden');
                 eyeOpen.classList.add('hidden');
+                toggleBtn.setAttribute('aria-label', 'نمایش رمز عبور');
             }
         });
+
+        // Set initial aria-label
+        toggleBtn.setAttribute('aria-label', 'نمایش رمز عبور');
     }
 }
 
@@ -664,6 +750,23 @@ const MAX_AUTH_RETRIES = 3;
 async function checkAuthStatus() {
     if (authCheckPromise) {
         return authCheckPromise;
+    }
+
+    // Try to restore from local session first (for faster UX)
+    try {
+        const savedSession = localStorage.getItem('userSession');
+        if (savedSession) {
+            const sessionData = JSON.parse(savedSession);
+            // Only use saved session if it's recent (1 hour)
+            if (Date.now() - sessionData.timestamp < 60 * 60 * 1000) {
+                // Temporarily show user as logged in while we verify
+                currentUser = sessionData;
+                updateAuthUI();
+            }
+        }
+    } catch (error) {
+        console.error('Error loading saved session:', error);
+        localStorage.removeItem('userSession');
     }
 
     authCheckPromise = (async () => {
@@ -715,13 +818,25 @@ function updateAuthUI() {
         loggedOutSection.classList.add('hidden');
         loggedInSection.classList.remove('hidden');
         userNameSpan.textContent = currentUser.name;
+        
+        // Save user session info (without sensitive data)
+        const userSession = {
+            name: currentUser.name,
+            id: currentUser.id,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('userSession', JSON.stringify(userSession));
     } else {
         loggedOutSection.classList.remove('hidden');
         loggedInSection.classList.add('hidden');
+        
+        // Clear user session info
+        localStorage.removeItem('userSession');
     }
 
     // Re-render prompts to update login-dependent content
     renderPrompts();
+    saveUserState(); // Save state when auth changes
 }
 
 function showModal() {
@@ -835,7 +950,7 @@ async function handleRegister(event) {
     const phoneNumber = document.getElementById('register-phone').value.trim();
     const username = document.getElementById('register-username').value.trim();
     const password = document.getElementById('register-password').value;
-    const captcha = document.getElementById('register-captcha').value.trim();
+    const captcha = document.getElementById('captcha-input').value.trim();
 
     if (!name || !phoneNumber || !password || !captcha) {
         showNotification('لطفاً تمام فیلدها را پر کنید', 'error');
@@ -1199,6 +1314,9 @@ console.log('🧪 Test login: testLogin() | Test logout: testLogout()');
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    // Load user state first
+    loadUserState();
+    
     // Initialize DOM elements
     function initializeDOMElements() {
         // All DOM element initializations and event listener setups go here
@@ -1348,6 +1466,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.style.color = 'white';
 
                 renderWallpapers();
+                saveUserState(); // Save state when filter changes
             });
         });
     }
@@ -1386,4 +1505,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Call the function to initialize all DOM elements and their event listeners
     initializeDOMElements();
+    
+    // Auto-save state periodically
+    setInterval(saveUserState, 30000); // Save every 30 seconds
+});
+
+// Save state before page unload
+window.addEventListener('beforeunload', () => {
+    saveUserState();
+});
+
+// Save state when page becomes hidden (mobile switching, etc.)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        saveUserState();
+    }
 });

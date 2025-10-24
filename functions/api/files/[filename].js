@@ -7,8 +7,8 @@ export async function onRequestGet(context) {
         const url = new URL(request.url);
         const filename = url.pathname.split('/').pop();
         
-        if (!filename) {
-            return new Response('File not found', { status: 404 });
+        if (!filename || filename.includes('..') || filename.includes('/')) {
+            return new Response('Invalid filename', { status: 400 });
         }
         
         // Get file data and metadata

@@ -369,20 +369,38 @@ header .user-avatar {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: #6b7280;
     cursor: pointer;
     z-index: 10;
     background: none;
     border: none;
-    padding: 0;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .password-toggle:hover {
-    color: #4b5563;
-    transform: translateY(-50%);
+    color: #374151;
+    background-color: #f3f4f6;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.password-toggle:active {
+    transform: translateY(-50%) scale(0.95);
 }
 
 /* RTL/LTR positioning for password toggle */
+[dir="rtl"] .password-toggle {
+    left: 12px;
+}
+
+[dir="ltr"] .password-toggle {
+    right: 12px;
+}
+
 [dir="rtl"] .password-input {
     padding-right: 3rem !important;
     padding-left: 1rem !important;
@@ -391,6 +409,18 @@ header .user-avatar {
 [dir="ltr"] .password-input {
     padding-left: 1rem !important;
     padding-right: 3rem !important;
+}
+
+/* Ensure password input has proper styling */
+.password-input {
+    position: relative;
+}
+
+/* Better icon styling */
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
 }
 
 /* Notification System Styles */
