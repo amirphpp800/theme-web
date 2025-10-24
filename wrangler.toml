@@ -11,6 +11,7 @@ id = "your-kv-namespace-id-here" # Replace with actual KV namespace ID
 [env.production.vars]
 ADMIN_USER = "admin"
 ADMIN_PASS = "your-secure-password-here"
+# توصیه: این اعتبارنامه‌ها را در production تغییر دهید
 
 [env.preview]
 # KV namespace binding for preview

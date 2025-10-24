@@ -85,7 +85,7 @@ async function handleAddWallpaper(request, env) {
         
         // Validate required fields
         if (!wallpaperData.title || !wallpaperData.title.fa || !wallpaperData.title.en || 
-            !wallpaperData.image || !wallpaperData.type || !wallpaperData.resolution) {
+            !wallpaperData.image || !wallpaperData.type) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
@@ -114,7 +114,6 @@ async function handleAddWallpaper(request, env) {
             downloadUrl: wallpaperData.downloadUrl || wallpaperData.image, // Use downloadUrl if available
             type: wallpaperData.type,
             price: wallpaperData.price || null,
-            resolution: wallpaperData.resolution,
             downloads: 0,
             createdAt: new Date().toISOString()
         };

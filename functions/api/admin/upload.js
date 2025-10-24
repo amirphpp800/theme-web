@@ -38,7 +38,7 @@ export async function onRequestPost(context) {
             }
             
             fileName = file.name;
-            fileType = file.type;
+            fileType = file.type || 'application/octet-stream';
             const arrayBuffer = await file.arrayBuffer();
             fileData = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
             

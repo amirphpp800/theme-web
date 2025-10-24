@@ -158,7 +158,7 @@ function loadUserState() {
         if (!savedState) return;
 
         const userState = JSON.parse(savedState);
-        
+
         // Check if state is not too old (24 hours)
         const maxAge = 24 * 60 * 60 * 1000; // 24 hours
         if (Date.now() - userState.timestamp > maxAge) {
@@ -191,19 +191,19 @@ function loadUserState() {
 function restoreUIState() {
     // Restore section
     switchSection(currentSection);
-    
+
     // Restore filter
     const filterButtons = document.querySelectorAll('.filter-btn');
     filterButtons.forEach(btn => {
         btn.classList.remove('active', 'bg-black', 'text-white');
         btn.classList.add('bg-gray-100', 'text-gray-700');
-        
+
         if (btn.dataset.filter === currentFilter) {
             btn.classList.add('active', 'bg-black', 'text-white');
             btn.classList.remove('bg-gray-100', 'text-gray-700');
         }
     });
-    
+
     // Re-render content with restored filter
     if (currentSection === 'wallpapers') {
         renderWallpapers();
@@ -288,7 +288,7 @@ function validateCaptcha(userInput) {
 function switchSection(targetSection) {
     // Update current section
     currentSection = targetSection;
-    
+
     // Hide all sections
     sections.forEach(section => {
         section.classList.remove('active');
@@ -315,7 +315,7 @@ function switchSection(targetSection) {
         activeBtn.style.backgroundColor = 'black';
         activeBtn.style.color = 'white';
     }
-    
+
     // Save state when section changes
     saveUserState();
 }
@@ -469,7 +469,14 @@ async function renderPrompts() {
             <div class="relative cursor-pointer group h-80 overflow-hidden" onclick="showPromptModal('${prompt.id}')">
                 <!-- Background Image -->
                 <img src="${prompt.image}" alt="${title}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ci8+CjxwYXRoIGQ9Ik0xNzU 4MjVIMTYyVW9yZSBmcm9tIHRoZSBmb3JtIGFyZSB3ZWxsIGluc3RlYWQgYSBnb29kIHByb2plY3QgdG8gYmVmb3JlIHRoZSBwaG9uZS5wYXRoIGQ9Ik0xNzUgMTI1SDE2MjVWMTc1SDE3NVYxMjVaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPg=='; this.classList.add('image-placeholder');">
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                <!-- Fallback placeholder -->
+                <div class="absolute inset-0 bg-gray-100 flex items-center justify-center" style="display: none;">
+                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
 
                 <!-- Dark gradient overlay for text readability -->
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -706,7 +713,7 @@ function setupPasswordToggle(formType) {
         toggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 eyeClosed.classList.add('hidden');
@@ -818,7 +825,7 @@ function updateAuthUI() {
         loggedOutSection.classList.add('hidden');
         loggedInSection.classList.remove('hidden');
         userNameSpan.textContent = currentUser.name;
-        
+
         // Save user session info (without sensitive data)
         const userSession = {
             name: currentUser.name,
@@ -829,7 +836,7 @@ function updateAuthUI() {
     } else {
         loggedOutSection.classList.remove('hidden');
         loggedInSection.classList.add('hidden');
-        
+
         // Clear user session info
         localStorage.removeItem('userSession');
     }
@@ -956,7 +963,7 @@ async function handleRegister(event) {
         showNotification('لطفاً تمام فیلدها را پر کنید', 'error');
         return;
     }
-    
+
     // Check for username uniqueness if provided
     if (username) {
         const response = await fetch('/api/user/check-username', {
@@ -1143,8 +1150,7 @@ async function renderWallpapers() {
             </div>
             <div class="p-6">
                 <h3 class="text-xl font-bold mb-3 text-black">${title}</h3>
-                <div class="flex justify-between items-center text-sm text-gray-600 mb-4">
-                    <span class="font-medium">${wallpaper.resolution}</span>
+                <div class="flex justify-end items-center text-sm text-gray-600 mb-4">
                     <span>${formattedDownloads} ${downloadsText}</span>
                 </div>
                 <button class="w-full bg-black hover:opacity-80 text-white py-3 px-4 rounded-2xl font-semibold transition-all duration-200"
@@ -1316,7 +1322,7 @@ console.log('🧪 Test login: testLogin() | Test logout: testLogout()');
 document.addEventListener('DOMContentLoaded', function() {
     // Load user state first
     loadUserState();
-    
+
     // Initialize DOM elements
     function initializeDOMElements() {
         // All DOM element initializations and event listener setups go here
@@ -1505,7 +1511,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Call the function to initialize all DOM elements and their event listeners
     initializeDOMElements();
-    
+
     // Auto-save state periodically
     setInterval(saveUserState, 30000); // Save every 30 seconds
 });

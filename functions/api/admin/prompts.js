@@ -146,8 +146,7 @@ async function handleAddPrompt(request, env) {
 
 async function handleDeletePrompt(request, env) {
     try {
-        const url = new URL(request.url);
-        const promptId = url.pathname.split('/').pop();
+        const { promptId } = await request.json();
         
         if (!promptId) {
             return new Response(JSON.stringify({ error: 'Prompt ID required' }), {
@@ -159,6 +158,15 @@ async function handleDeletePrompt(request, env) {
         // Get existing prompts
         const promptsList = await env.DB.get('prompts_list');
         const prompts = promptsList ? JSON.parse(promptsList) : [];
+        
+        // Check if prompt exists
+        const promptExists = prompts.some(p => p.id === promptId);
+        if (!promptExists) {
+            return new Response(JSON.stringify({ error: 'Prompt not found' }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
         
         // Remove prompt from list
         const updatedPrompts = prompts.filter(p => p.id !== promptId);
@@ -178,6 +186,7 @@ async function handleDeletePrompt(request, env) {
         });
         
     } catch (error) {
+        console.error('Delete prompt error:', error);
         return new Response(JSON.stringify({ error: 'Failed to delete prompt' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }

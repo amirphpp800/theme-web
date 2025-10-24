@@ -9,7 +9,7 @@ export async function onRequestGet(context) {
         }
         
         // Get image data from KV
-        const imageData = await env.DB.get(`image:${filename}`);
+        const imageData = await env.DB.get(`file:${filename}`);
         if (!imageData) {
             return new Response('Image not found', { status: 404 });
         }

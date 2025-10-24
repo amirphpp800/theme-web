@@ -15,11 +15,14 @@ const priceSection = document.getElementById('price-section');
 
 // Image upload elements
 const imageTabBtns = document.querySelectorAll('.image-tab-btn');
-const wallpaperImageTabBtns = document.querySelectorAll('.wallpaper-image-tab-btn');
+const wallpaperCoverTabBtns = document.querySelectorAll('.wallpaper-cover-tab-btn');
+const wallpaperFileTabBtns = document.querySelectorAll('.wallpaper-file-tab-btn');
 const promptImageFile = document.getElementById('prompt-image-file');
-const wallpaperImageFile = document.getElementById('wallpaper-image-file');
+const wallpaperCoverFile = document.getElementById('wallpaper-cover-file');
+const wallpaperFileInput = document.getElementById('wallpaper-file-input');
 const promptRemoveFileBtn = document.getElementById('prompt-remove-file');
-const wallpaperRemoveFileBtn = document.getElementById('wallpaper-remove-file');
+const wallpaperCoverRemoveFileBtn = document.getElementById('wallpaper-cover-remove-file');
+const wallpaperFileRemoveBtn = document.getElementById('wallpaper-file-remove');
 
 // Check login status on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -305,32 +308,33 @@ async function handleAddWallpaper(event) {
     const originalText = submitBtn.textContent;
     submitBtn.textContent = 'در حال اضافه کردن...';
 
-    // Get image source (URL or uploaded file)
-    let imageSource = '';
-    let downloadUrl = '';
-    const imageUrlInput = document.getElementById('wallpaper-image');
-    const imageFileInput = document.getElementById('wallpaper-image-file');
-    const activeTab = document.querySelector('.wallpaper-image-tab-btn.active')?.dataset.tab;
-
-    if (activeTab === 'url') {
-        imageSource = imageUrlInput.value;
-        downloadUrl = imageSource; // For URL, download URL is the same
-        if (!imageSource) {
-            alert('لطفاً لینک تصویر را وارد کنید!');
+    // Get cover image
+    let coverImageSource = '';
+    const coverActiveTab = document.querySelector('.wallpaper-cover-tab-btn.active')?.dataset.tab;
+    
+    if (coverActiveTab === 'url') {
+        coverImageSource = document.getElementById('wallpaper-cover-image').value;
+        if (!coverImageSource) {
+            alert('لطفاً لینک تصویر کاور را وارد کنید!');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            addWallpaperRequestId = null;
             return;
         }
-    } else if (activeTab === 'upload') {
-        const file = imageFileInput.files[0];
-        if (!file) {
-            alert('لطفاً فایل را انتخاب کنید!');
+    } else if (coverActiveTab === 'upload') {
+        const coverFile = document.getElementById('wallpaper-cover-file').files[0];
+        if (!coverFile) {
+            alert('لطفاً فایل تصویر کاور را انتخاب کنید!');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            addWallpaperRequestId = null;
             return;
         }
 
-        // Upload file directly
         try {
             const formData = new FormData();
-            formData.append('file', file);
-            formData.append('type', 'wallpaper');
+            formData.append('file', coverFile);
+            formData.append('type', 'wallpaper-cover');
 
             const uploadResponse = await fetch('/api/admin/upload', {
                 method: 'POST',
@@ -341,15 +345,69 @@ async function handleAddWallpaper(event) {
             });
 
             if (!uploadResponse.ok) {
-                throw new Error('خطا در آپلود فایل');
+                throw new Error('خطا در آپلود تصویر کاور');
             }
 
             const uploadData = await uploadResponse.json();
-            imageSource = uploadData.imageUrl; // For preview
-            downloadUrl = uploadData.downloadUrl; // For actual download
+            coverImageSource = uploadData.imageUrl;
 
         } catch (error) {
-            alert('خطا در آپلود فایل: ' + error.message);
+            alert('خطا در آپلود تصویر کاور: ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            addWallpaperRequestId = null;
+            return;
+        }
+    }
+
+    // Get wallpaper file
+    let downloadUrl = '';
+    const fileActiveTab = document.querySelector('.wallpaper-file-tab-btn.active')?.dataset.tab;
+    
+    if (fileActiveTab === 'url') {
+        downloadUrl = document.getElementById('wallpaper-file-url').value;
+        if (!downloadUrl) {
+            alert('لطفاً لینک فایل والپیپر را وارد کنید!');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            addWallpaperRequestId = null;
+            return;
+        }
+    } else if (fileActiveTab === 'upload') {
+        const wallpaperFile = document.getElementById('wallpaper-file-input').files[0];
+        if (!wallpaperFile) {
+            alert('لطفاً فایل والپیپر را انتخاب کنید!');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            addWallpaperRequestId = null;
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('file', wallpaperFile);
+            formData.append('type', 'wallpaper-file');
+
+            const uploadResponse = await fetch('/api/admin/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                },
+                body: formData
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error('خطا در آپلود فایل والپیپر');
+            }
+
+            const uploadData = await uploadResponse.json();
+            downloadUrl = uploadData.downloadUrl;
+
+        } catch (error) {
+            alert('خطا در آپلود فایل والپیپر: ' + error.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+            addWallpaperRequestId = null;
             return;
         }
     }
@@ -362,11 +420,11 @@ async function handleAddWallpaper(event) {
             fa: document.getElementById('wallpaper-title-fa').value,
             en: document.getElementById('wallpaper-title-en').value
         },
-        image: imageSource,
-        downloadUrl: downloadUrl, // Separate download URL
-        imageType: activeTab, // 'url' or 'upload'
+        image: coverImageSource, // Cover image for display
+        downloadUrl: downloadUrl, // Actual file for download
+        coverType: coverActiveTab,
+        fileType: fileActiveTab,
         type: wallpaperType,
-        resolution: document.getElementById('wallpaper-resolution').value,
         price: price ? {
             fa: `${price} تومان`,
             en: `${price} IRR`
@@ -388,7 +446,8 @@ async function handleAddWallpaper(event) {
         if (response.ok) {
             alert('والپیپر با موفقیت اضافه شد!');
             addWallpaperForm.reset();
-            resetImageUpload('wallpaper');
+            resetImageUpload('wallpaper-cover');
+            resetImageUpload('wallpaper-file');
             togglePriceSection();
             loadWallpapers();
         } else {
@@ -400,6 +459,7 @@ async function handleAddWallpaper(event) {
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = originalText;
+        addWallpaperRequestId = null;
     }
 }
 
@@ -421,7 +481,11 @@ async function loadPrompts() {
         const data = await response.json();
 
         if (response.ok) {
-            displayPrompts(data.prompts);
+            // Remove duplicates based on ID
+            const uniquePrompts = data.prompts.filter((prompt, index, self) => 
+                index === self.findIndex(p => p.id === prompt.id)
+            );
+            displayPrompts(uniquePrompts);
         }
     } catch (error) {
         console.error('Load prompts error:', error);
@@ -494,7 +558,7 @@ function displayWallpapers(wallpapers) {
 }
 
 async function deletePrompt(promptId) {
-    if (!promptId || promptId === 'undefined') {
+    if (!promptId || promptId === 'undefined' || promptId === 'null') {
         alert('شناسه پرامپت نامعتبر است');
         return;
     }
@@ -506,17 +570,20 @@ async function deletePrompt(promptId) {
     const token = localStorage.getItem('adminToken');
     if (!token) {
         alert('لطفاً مجدداً وارد شوید');
+        showLoginSection();
         return;
     }
 
     try {
-        const response = await fetch(`/api/admin/prompts/${encodeURIComponent(promptId)}`, {
+        // Use the correct API endpoint format
+        const response = await fetch('/api/admin/prompts', {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
                 'Cache-Control': 'no-cache'
-            }
+            },
+            body: JSON.stringify({ promptId: promptId })
         });
 
         if (!response.ok) {
@@ -524,19 +591,30 @@ async function deletePrompt(promptId) {
             let errorData;
             try {
                 errorData = JSON.parse(errorText);
-            } catch {
-                errorData = { error: `HTTP ${response.status}: ${errorText}` };
+            } catch (parseError) {
+                errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
             }
+            
+            if (response.status === 401) {
+                alert('جلسه شما منقضی شده است. لطفاً مجدداً وارد شوید.');
+                showLoginSection();
+                return;
+            }
+            
             throw new Error(errorData.error || 'خطا در حذف پرامپت');
         }
 
         const data = await response.json();
         alert('پرامپت با موفقیت حذف شد!');
-        await loadPrompts();
+        await loadPrompts(); // Reload the list
 
     } catch (error) {
         console.error('Delete prompt error:', error);
-        alert(`خطا در حذف پرامپت: ${error.message}`);
+        if (error.message.includes('Failed to fetch')) {
+            alert('خطا در اتصال به سرور. لطفاً اتصال اینترنت خود را بررسی کنید.');
+        } else {
+            alert(`خطا در حذف پرامپت: ${error.message}`);
+        }
     }
 }
 
@@ -594,9 +672,14 @@ function setupImageUploadListeners() {
         btn.addEventListener('click', () => switchImageTab('prompt', btn.dataset.tab));
     });
 
-    // Wallpaper image tabs
-    wallpaperImageTabBtns.forEach(btn => {
-        btn.addEventListener('click', () => switchImageTab('wallpaper', btn.dataset.tab));
+    // Wallpaper cover tabs
+    wallpaperCoverTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchImageTab('wallpaper-cover', btn.dataset.tab));
+    });
+
+    // Wallpaper file tabs
+    wallpaperFileTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => switchImageTab('wallpaper-file', btn.dataset.tab));
     });
 
     // File input changes
@@ -604,8 +687,12 @@ function setupImageUploadListeners() {
         promptImageFile.addEventListener('change', (e) => handleFileSelect(e, 'prompt'));
     }
 
-    if (wallpaperImageFile) {
-        wallpaperImageFile.addEventListener('change', (e) => handleFileSelect(e, 'wallpaper'));
+    if (wallpaperCoverFile) {
+        wallpaperCoverFile.addEventListener('change', (e) => handleFileSelect(e, 'wallpaper-cover'));
+    }
+
+    if (wallpaperFileInput) {
+        wallpaperFileInput.addEventListener('change', (e) => handleFileSelect(e, 'wallpaper-file'));
     }
 
     // Remove file buttons
@@ -613,18 +700,33 @@ function setupImageUploadListeners() {
         promptRemoveFileBtn.addEventListener('click', () => removeFile('prompt'));
     }
 
-    if (wallpaperRemoveFileBtn) {
-        wallpaperRemoveFileBtn.addEventListener('click', () => removeFile('wallpaper'));
+    if (wallpaperCoverRemoveFileBtn) {
+        wallpaperCoverRemoveFileBtn.addEventListener('click', () => removeFile('wallpaper-cover'));
+    }
+
+    if (wallpaperFileRemoveBtn) {
+        wallpaperFileRemoveBtn.addEventListener('click', () => removeFile('wallpaper-file'));
     }
 
     // Drag and drop
     setupDragAndDrop('prompt');
-    setupDragAndDrop('wallpaper');
+    setupDragAndDrop('wallpaper-cover');
+    setupDragAndDrop('wallpaper-file');
 }
 
 function switchImageTab(type, tab) {
-    const tabBtns = type === 'prompt' ? imageTabBtns : wallpaperImageTabBtns;
-    const tabClass = type === 'prompt' ? 'image-input-tab' : 'wallpaper-image-input-tab';
+    let tabBtns, tabClass;
+    
+    if (type === 'prompt') {
+        tabBtns = imageTabBtns;
+        tabClass = 'image-input-tab';
+    } else if (type === 'wallpaper-cover') {
+        tabBtns = wallpaperCoverTabBtns;
+        tabClass = 'wallpaper-cover-input-tab';
+    } else if (type === 'wallpaper-file') {
+        tabBtns = wallpaperFileTabBtns;
+        tabClass = 'wallpaper-file-input-tab';
+    }
 
     // Update tab buttons
     tabBtns.forEach(btn => {
@@ -632,18 +734,28 @@ function switchImageTab(type, tab) {
         btn.classList.add('text-gray-600');
     });
 
-    const activeBtn = document.querySelector(`[data-tab="${tab}"]`);
-    if (activeBtn && tabBtns.length > 0) {
-        const targetBtn = Array.from(tabBtns).find(btn => btn.dataset.tab === tab);
-        if (targetBtn) {
-            targetBtn.classList.add('active', 'bg-black', 'text-white');
-            targetBtn.classList.remove('text-gray-600');
-        }
+    const targetBtn = Array.from(tabBtns).find(btn => btn.dataset.tab === tab);
+    if (targetBtn) {
+        targetBtn.classList.add('active', 'bg-black', 'text-white');
+        targetBtn.classList.remove('text-gray-600');
     }
 
     // Update tab content
-    const urlTab = document.getElementById(`${type}-image-url-tab`);
-    const uploadTab = document.getElementById(`${type}-image-upload-tab`);
+    let urlTabId, uploadTabId;
+    
+    if (type === 'prompt') {
+        urlTabId = 'prompt-image-url-tab';
+        uploadTabId = 'prompt-image-upload-tab';
+    } else if (type === 'wallpaper-cover') {
+        urlTabId = 'wallpaper-cover-url-tab';
+        uploadTabId = 'wallpaper-cover-upload-tab';
+    } else if (type === 'wallpaper-file') {
+        urlTabId = 'wallpaper-file-url-tab';
+        uploadTabId = 'wallpaper-file-upload-tab';
+    }
+    
+    const urlTab = document.getElementById(urlTabId);
+    const uploadTab = document.getElementById(uploadTabId);
 
     if (tab === 'url') {
         urlTab?.classList.remove('hidden');
@@ -658,11 +770,17 @@ function handleFileSelect(event, type) {
     const file = event.target.files[0];
     if (!file) return;
 
+    // File type validation
+    const allowedTypes = {
+        'prompt': ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+        'wallpaper-cover': ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+        'wallpaper-file': ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'application/zip', 'application/x-rar-compressed', 'application/x-zip-compressed']
+    };
+
     // Different validation for different types
     if (type === 'prompt') {
-        // Prompts still need images only
-        if (!file.type.startsWith('image/')) {
-            alert('لطفاً فقط فایل تصویری برای پرامپت انتخاب کنید!');
+        if (!allowedTypes.prompt.includes(file.type)) {
+            alert('لطفاً فقط فایل تصویری (JPG, PNG, GIF, WebP) برای پرامپت انتخاب کنید!');
             return;
         }
         const maxSize = 5 * 1024 * 1024; // 5MB for prompts
@@ -670,11 +788,20 @@ function handleFileSelect(event, type) {
             alert('حجم فایل نباید بیشتر از 5MB باشد!');
             return;
         }
-    } else if (type === 'wallpaper') {
-        // Wallpapers can be any file type
-        const maxSize = 50 * 1024 * 1024; // 50MB for wallpapers
+    } else if (type === 'wallpaper-cover') {
+        if (!allowedTypes['wallpaper-cover'].includes(file.type)) {
+            alert('لطفاً فقط فایل تصویری (JPG, PNG, GIF, WebP) برای کاور انتخاب کنید!');
+            return;
+        }
+        const maxSize = 5 * 1024 * 1024; // 5MB for cover images
         if (file.size > maxSize) {
-            alert('حجم فایل نباید بیشتر از 50MB باشد!');
+            alert('حجم تصویر کاور نباید بیشتر از 5MB باشد!');
+            return;
+        }
+    } else if (type === 'wallpaper-file') {
+        const maxSize = 100 * 1024 * 1024; // 100MB for wallpaper files
+        if (file.size > maxSize) {
+            alert('حجم فایل والپیپر نباید بیشتر از 100MB باشد!');
             return;
         }
     }
@@ -684,9 +811,34 @@ function handleFileSelect(event, type) {
 }
 
 function showFilePreview(file, type) {
-    const uploadArea = document.getElementById(`${type}-upload-area`);
-    const preview = document.getElementById(`${type}-upload-preview`);
-    const fileName = document.getElementById(`${type}-file-name`);
+    let uploadAreaId, previewId, fileNameId, fileSizeId, previewImgId, fileIconId;
+    
+    if (type === 'prompt') {
+        uploadAreaId = 'prompt-upload-area';
+        previewId = 'prompt-upload-preview';
+        fileNameId = 'prompt-file-name';
+        fileSizeId = 'prompt-file-size';
+        previewImgId = 'prompt-preview-img';
+        fileIconId = 'prompt-file-icon';
+    } else if (type === 'wallpaper-cover') {
+        uploadAreaId = 'wallpaper-cover-upload-area';
+        previewId = 'wallpaper-cover-preview';
+        fileNameId = 'wallpaper-cover-file-name';
+        fileSizeId = 'wallpaper-cover-file-size';
+        previewImgId = 'wallpaper-cover-preview-img';
+        fileIconId = 'wallpaper-cover-file-icon';
+    } else if (type === 'wallpaper-file') {
+        uploadAreaId = 'wallpaper-file-upload-area';
+        previewId = 'wallpaper-file-preview';
+        fileNameId = 'wallpaper-file-name';
+        fileSizeId = 'wallpaper-file-size';
+        previewImgId = 'wallpaper-file-preview-img';
+        fileIconId = 'wallpaper-file-icon';
+    }
+
+    const uploadArea = document.getElementById(uploadAreaId);
+    const preview = document.getElementById(previewId);
+    const fileName = document.getElementById(fileNameId);
 
     if (!uploadArea || !preview || !fileName) return;
 
@@ -695,7 +847,7 @@ function showFilePreview(file, type) {
     fileName.textContent = file.name;
 
     // Show file size if element exists
-    const fileSize = document.getElementById(`${type}-file-size`);
+    const fileSize = document.getElementById(fileSizeId);
     if (fileSize) {
         const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
         fileSize.textContent = `حجم: ${sizeMB} مگابایت`;
@@ -705,32 +857,52 @@ function showFilePreview(file, type) {
     if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const previewImg = document.getElementById(`${type}-preview-img`);
-            const fileIcon = document.getElementById(`${type}-file-icon`);
+            const previewImg = document.getElementById(previewImgId);
+            const fileIcon = document.getElementById(fileIconId);
 
-            if (previewImg && fileIcon) {
+            if (previewImg) {
                 previewImg.src = e.target.result;
                 previewImg.classList.remove('hidden');
+            }
+            if (fileIcon) {
                 fileIcon.classList.add('hidden');
             }
         };
         reader.readAsDataURL(file);
     } else {
         // For non-image files, show file icon
-        const previewImg = document.getElementById(`${type}-preview-img`);
-        const fileIcon = document.getElementById(`${type}-file-icon`);
+        const previewImg = document.getElementById(previewImgId);
+        const fileIcon = document.getElementById(fileIconId);
 
-        if (previewImg && fileIcon) {
+        if (previewImg) {
             previewImg.classList.add('hidden');
+        }
+        if (fileIcon) {
             fileIcon.classList.remove('hidden');
         }
     }
 }
 
 function removeFile(type) {
-    const fileInput = document.getElementById(`${type}-image-file`);
-    const uploadArea = document.getElementById(`${type}-upload-area`);
-    const preview = document.getElementById(`${type}-upload-preview`);
+    let fileInputId, uploadAreaId, previewId;
+    
+    if (type === 'prompt') {
+        fileInputId = 'prompt-image-file';
+        uploadAreaId = 'prompt-upload-area';
+        previewId = 'prompt-upload-preview';
+    } else if (type === 'wallpaper-cover') {
+        fileInputId = 'wallpaper-cover-file';
+        uploadAreaId = 'wallpaper-cover-upload-area';
+        previewId = 'wallpaper-cover-preview';
+    } else if (type === 'wallpaper-file') {
+        fileInputId = 'wallpaper-file-input';
+        uploadAreaId = 'wallpaper-file-upload-area';
+        previewId = 'wallpaper-file-preview';
+    }
+
+    const fileInput = document.getElementById(fileInputId);
+    const uploadArea = document.getElementById(uploadAreaId);
+    const preview = document.getElementById(previewId);
 
     if (fileInput) fileInput.value = '';
     if (uploadArea) uploadArea.classList.remove('hidden');
@@ -741,8 +913,17 @@ function resetImageUpload(type) {
     // Reset to URL tab
     switchImageTab(type, 'url');
 
-    // Clear URL input
-    const urlInput = document.getElementById(`${type}-image`);
+    // Clear URL input based on type
+    let urlInputId;
+    if (type === 'prompt') {
+        urlInputId = 'prompt-image';
+    } else if (type === 'wallpaper-cover') {
+        urlInputId = 'wallpaper-cover-image';
+    } else if (type === 'wallpaper-file') {
+        urlInputId = 'wallpaper-file-url';
+    }
+    
+    const urlInput = document.getElementById(urlInputId);
     if (urlInput) urlInput.value = '';
 
     // Clear file upload
@@ -750,7 +931,20 @@ function resetImageUpload(type) {
 }
 
 function setupDragAndDrop(type) {
-    const uploadArea = document.getElementById(`${type}-upload-area`);
+    let uploadAreaId, fileInputId;
+    
+    if (type === 'prompt') {
+        uploadAreaId = 'prompt-upload-area';
+        fileInputId = 'prompt-image-file';
+    } else if (type === 'wallpaper-cover') {
+        uploadAreaId = 'wallpaper-cover-upload-area';
+        fileInputId = 'wallpaper-cover-file';
+    } else if (type === 'wallpaper-file') {
+        uploadAreaId = 'wallpaper-file-upload-area';
+        fileInputId = 'wallpaper-file-input';
+    }
+    
+    const uploadArea = document.getElementById(uploadAreaId);
     if (!uploadArea) return;
 
     uploadArea.addEventListener('dragover', (e) => {
@@ -769,7 +963,7 @@ function setupDragAndDrop(type) {
 
         const files = e.dataTransfer.files;
         if (files.length > 0) {
-            const fileInput = document.getElementById(`${type}-image-file`);
+            const fileInput = document.getElementById(fileInputId);
             if (fileInput) {
                 fileInput.files = files;
                 handleFileSelect({ target: { files } }, type);
