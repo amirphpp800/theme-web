@@ -69,6 +69,19 @@ async function handleGetPrompts(env) {
 async function handleAddPrompt(request, env) {
     try {
         const promptData = await request.json();
+        const requestId = request.headers.get('X-Request-ID');
+        
+        // Check for duplicate request
+        if (requestId) {
+            const duplicateCheck = await env.DB.get(`request:${requestId}`);
+            if (duplicateCheck) {
+                const existingResponse = JSON.parse(duplicateCheck);
+                return new Response(JSON.stringify(existingResponse), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+        }
         
         // Validate required fields
         if (!promptData.title || !promptData.title.fa || !promptData.title.en || 
@@ -105,11 +118,20 @@ async function handleAddPrompt(request, env) {
         await env.DB.put('prompts_list', JSON.stringify(prompts));
         await env.DB.put(`prompt:${promptId}`, JSON.stringify(newPrompt));
         
-        return new Response(JSON.stringify({ 
+        const response = { 
             success: true, 
             prompt: newPrompt,
             message: 'Prompt added successfully'
-        }), {
+        };
+        
+        // Cache the request to prevent duplicates
+        if (requestId) {
+            await env.DB.put(`request:${requestId}`, JSON.stringify(response), {
+                expirationTtl: 300 // 5 minutes
+            });
+        }
+        
+        return new Response(JSON.stringify(response), {
             status: 201,
             headers: { 'Content-Type': 'application/json' }
         });

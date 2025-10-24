@@ -32,19 +32,11 @@ export async function onRequestPost(context) {
             }
         }
         
-        // Get wallpaper info (you would have this data in KV or hardcoded)
-        const wallpapers = {
-            1: { type: 'free', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=3840&h=2160&fit=crop' },
-            2: { type: 'premium', url: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=3840&h=2160&fit=crop' },
-            3: { type: 'free', url: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=3840&h=2160&fit=crop' },
-            4: { type: 'premium', url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=3840&h=2160&fit=crop' },
-            5: { type: 'free', url: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=3840&h=2160&fit=crop' },
-            6: { type: 'premium', url: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=3840&h=2160&fit=crop' },
-            7: { type: 'free', url: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=3840&h=2160&fit=crop' },
-            8: { type: 'premium', url: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=3840&h=2160&fit=crop' }
-        };
+        // Get wallpaper from KV store
+        const wallpapersList = await env.DB.get('wallpapers_list');
+        const wallpapers = wallpapersList ? JSON.parse(wallpapersList) : [];
         
-        const wallpaper = wallpapers[wallpaperId];
+        const wallpaper = wallpapers.find(w => w.id.toString() === wallpaperId.toString());
         if (!wallpaper) {
             return new Response(JSON.stringify({ error: 'Wallpaper not found' }), {
                 status: 404,
@@ -115,7 +107,7 @@ export async function onRequestPost(context) {
         
         return new Response(JSON.stringify({ 
             success: true, 
-            downloadUrl: wallpaper.url,
+            downloadUrl: wallpaper.downloadUrl || wallpaper.image,
             message: wallpaper.type === 'premium' ? 'Premium download started' : 'Free download started'
         }), {
             status: 200,

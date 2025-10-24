@@ -1,4 +1,4 @@
-// Admin image upload endpoint
+// Admin file upload endpoint - supports all file types
 export async function onRequestPost(context) {
     const { request, env } = context;
     
@@ -21,29 +21,75 @@ export async function onRequestPost(context) {
             });
         }
         
-        const { imageData, fileName, type } = await request.json();
+        const contentType = request.headers.get('content-type');
+        let fileData, fileName, fileType, uploadType;
         
-        if (!imageData || !fileName || !type) {
-            return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' }
-            });
+        if (contentType && contentType.includes('multipart/form-data')) {
+            // Handle FormData for direct file upload
+            const formData = await request.formData();
+            const file = formData.get('file');
+            uploadType = formData.get('type');
+            
+            if (!file) {
+                return new Response(JSON.stringify({ error: 'No file provided' }), {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            
+            fileName = file.name;
+            fileType = file.type;
+            const arrayBuffer = await file.arrayBuffer();
+            fileData = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+            
+        } else {
+            // Handle JSON for base64 data
+            const { fileData: base64Data, fileName: name, type } = await request.json();
+            
+            if (!base64Data || !name || !type) {
+                return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+                    status: 400,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+            
+            fileData = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
+            fileName = name;
+            uploadType = type;
         }
         
         // Generate unique filename
         const timestamp = Date.now();
         const fileExtension = fileName.split('.').pop();
-        const uniqueFileName = `${type}_${timestamp}.${fileExtension}`;
+        const uniqueFileName = `${uploadType}_${timestamp}.${fileExtension}`;
         
-        // Store image data in KV (in production, use R2 or external storage)
-        const imageKey = `image:${uniqueFileName}`;
-        await env.DB.put(imageKey, imageData);
+        // Store file data in KV with metadata
+        const fileKey = `file:${uniqueFileName}`;
+        const fileMetadata = {
+            originalName: fileName,
+            mimeType: fileType || 'application/octet-stream',
+            size: fileData.length,
+            uploadedAt: new Date().toISOString(),
+            type: uploadType
+        };
         
-        // Return the image URL/key
+        // Store file data and metadata separately
+        await env.DB.put(fileKey, fileData);
+        await env.DB.put(`${fileKey}_meta`, JSON.stringify(fileMetadata));
+        
+        // For wallpaper downloads, we'll serve the actual file
+        const downloadUrl = `/api/files/${uniqueFileName}`;
+        const displayUrl = fileType && fileType.startsWith('image/') ? 
+                          `/api/images/${uniqueFileName}` : 
+                          downloadUrl;
+        
         return new Response(JSON.stringify({
             success: true,
-            imageUrl: `/api/images/${uniqueFileName}`,
-            imageKey: uniqueFileName
+            imageUrl: displayUrl, // For preview
+            downloadUrl: downloadUrl, // For direct download
+            fileName: uniqueFileName,
+            originalName: fileName,
+            fileType: fileType
         }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }

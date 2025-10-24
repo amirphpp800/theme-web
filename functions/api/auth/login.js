@@ -1,28 +1,43 @@
+
 // Cloudflare Pages Function for user login
 export async function onRequestPost(context) {
     const { request, env } = context;
     
     try {
-        const { phone, password } = await request.json();
+        const { phone, username, password } = await request.json();
         
-        // Validate input
-        if (!phone || !password) {
-            return new Response(JSON.stringify({ error: 'Phone and password are required' }), {
+        // Validate input - need either phone or username
+        if (!password || (!phone && !username)) {
+            return new Response(JSON.stringify({ error: 'Password and either phone or username are required' }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
         
-        // Get user from KV
-        const userData = await env.DB.get(`user:${phone}`);
-        if (!userData) {
+        let user = null;
+        
+        // Try to get user by phone first
+        if (phone) {
+            const userData = await env.DB.get(`user:${phone}`);
+            if (userData) {
+                user = JSON.parse(userData);
+            }
+        }
+        
+        // If no user found by phone, try username
+        if (!user && username) {
+            const userData = await env.DB.get(`username:${username.toLowerCase()}`);
+            if (userData) {
+                user = JSON.parse(userData);
+            }
+        }
+        
+        if (!user) {
             return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-        
-        const user = JSON.parse(userData);
         
         // Verify password
         const hashedPassword = await hashPassword(password);
@@ -38,13 +53,14 @@ export async function onRequestPost(context) {
         const session = {
             userId: user.id,
             phone: user.phone,
+            username: user.username,
             createdAt: new Date().toISOString(),
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
         };
         
         // Store session in KV
         await env.DB.put(`session:${sessionToken}`, JSON.stringify(session), {
-            expirationTtl: 7 * 24 * 60 * 60 // 7 days in seconds
+            expirationTtl: 7 * 24 * 60 * 60
         });
         
         // Return success with session token
@@ -62,6 +78,7 @@ export async function onRequestPost(context) {
         });
         
     } catch (error) {
+        console.error('Login error:', error);
         return new Response(JSON.stringify({ error: 'Login failed' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }

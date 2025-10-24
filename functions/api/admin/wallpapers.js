@@ -69,11 +69,23 @@ async function handleGetWallpapers(env) {
 async function handleAddWallpaper(request, env) {
     try {
         const wallpaperData = await request.json();
+        const requestId = request.headers.get('X-Request-ID');
+        
+        // Check for duplicate request
+        if (requestId) {
+            const duplicateCheck = await env.DB.get(`request:${requestId}`);
+            if (duplicateCheck) {
+                const existingResponse = JSON.parse(duplicateCheck);
+                return new Response(JSON.stringify(existingResponse), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+        }
         
         // Validate required fields
         if (!wallpaperData.title || !wallpaperData.title.fa || !wallpaperData.title.en || 
-            !wallpaperData.image || !wallpaperData.type || !wallpaperData.resolution || 
-            !wallpaperData.downloadLink) {
+            !wallpaperData.image || !wallpaperData.type || !wallpaperData.resolution) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
@@ -99,7 +111,7 @@ async function handleAddWallpaper(request, env) {
                 en: wallpaperData.title.en
             },
             image: wallpaperData.image,
-            downloadLink: wallpaperData.downloadLink,
+            downloadUrl: wallpaperData.downloadUrl || wallpaperData.image, // Use downloadUrl if available
             type: wallpaperData.type,
             price: wallpaperData.price || null,
             resolution: wallpaperData.resolution,
