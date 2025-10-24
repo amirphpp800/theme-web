@@ -406,6 +406,9 @@ async function renderPrompts() {
     `;
 
     const prompts = await loadPromptsFromAPI();
+    
+    // Clear loading state before rendering
+    promptsGrid.innerHTML = '';
 
     if (prompts.length === 0) {
         const noPromptsTitle = currentLanguage === 'fa' ? 'پرامپتی موجود نیست' : 'No prompts available';
@@ -952,42 +955,15 @@ async function handleRegister(event) {
         clearTimeout(registerTimeout);
     }
 
-    const name = document.getElementById('register-name').value.trim();
-    const country = document.getElementById('register-country').value;
-    const phoneNumber = document.getElementById('register-phone').value.trim();
-    const username = document.getElementById('register-username').value.trim();
-    const password = document.getElementById('register-password').value;
-    const captcha = document.getElementById('captcha-input').value.trim();
+    const name = document.getElementById('register-name')?.value?.trim() || '';
+    const country = document.getElementById('country-select')?.value || '+98';
+    const phoneNumber = document.getElementById('register-phone')?.value?.trim() || '';
+    const username = document.getElementById('register-username')?.value?.trim() || '';
+    const password = document.getElementById('register-password')?.value || '';
+    const captcha = document.getElementById('captcha-input')?.value?.trim() || '';
 
     if (!name || !phoneNumber || !password || !captcha) {
         showNotification('لطفاً تمام فیلدها را پر کنید', 'error');
-        return;
-    }
-
-    // Check for username uniqueness if provided
-    if (username) {
-        const response = await fetch('/api/user/check-username', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username })
-        });
-        const data = await response.json();
-        if (!data.isUnique) {
-            showNotification('این نام کاربری قبلاً استفاده شده است.', 'error');
-            return;
-        }
-    }
-
-    // Check for phone uniqueness
-    const phone = country + phoneNumber;
-    const phoneResponse = await fetch('/api/user/check-phone', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone })
-    });
-    const phoneData = await phoneResponse.json();
-    if (!phoneData.isUnique) {
-        showNotification('این شماره تلفن قبلاً ثبت شده است.', 'error');
         return;
     }
 
@@ -995,7 +971,8 @@ async function handleRegister(event) {
     if (captcha !== currentCaptcha) {
         showNotification('کپچا اشتباه است', 'error');
         generateCaptcha();
-        document.getElementById('register-captcha').value = '';
+        const captchaInput = document.getElementById('captcha-input');
+        if (captchaInput) captchaInput.value = '';
         return;
     }
 
@@ -1096,6 +1073,9 @@ async function renderWallpapers() {
 
     const wallpapers = await loadWallpapersFromAPI();
     const filtered = filterWallpapers(currentFilter, wallpapers);
+    
+    // Clear loading state before rendering
+    wallpapersGrid.innerHTML = '';
 
     if (filtered.length === 0) {
         const noWallpapersTitle = currentLanguage === 'fa' ? 'والپیپری موجود نیست' : 'No wallpapers available';
@@ -1484,7 +1464,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize captcha
     generateCaptcha();
 
-    // Lazy load content
+    // Lazy load content - render only once
     if ('requestIdleCallback' in window) {
         requestIdleCallback(() => {
             renderPrompts();
@@ -1492,8 +1472,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } else {
         // Fallback for browsers that don't support requestIdleCallback
-        renderPrompts();
-        renderWallpapers();
+        setTimeout(() => {
+            renderPrompts();
+            renderWallpapers();
+        }, 100);
     }
 
     // Update language and setup modals
