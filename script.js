@@ -1,63 +1,8 @@
-// Sample prompts data
-const promptsData = [
-    {
-        id: 1,
-        title: {
-            fa: "منظره طبیعی رویایی",
-            en: "Dreamy Landscape"
-        },
-        prompt: "A breathtaking sunset over rolling hills, golden hour lighting, cinematic composition, ultra detailed, 8k resolution",
-        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop"
-    },
-    {
-        id: 2,
-        title: {
-            fa: "پرتره هنری",
-            en: "Artistic Portrait"
-        },
-        prompt: "Professional portrait photography, soft lighting, shallow depth of field, elegant composition, high quality, detailed face",
-        image: "https://images.unsplash.com/photo-1494790108755-2616c0763c0c?w=400&h=300&fit=crop"
-    },
-    {
-        id: 3,
-        title: {
-            fa: "معماری مدرن",
-            en: "Modern Architecture"
-        },
-        prompt: "Modern architectural design, clean lines, glass and steel, minimalist style, professional photography, award winning",
-        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop"
-    },
-    {
-        id: 4,
-        title: {
-            fa: "هنر انتزاعی",
-            en: "Abstract Art"
-        },
-        prompt: "Abstract digital art, vibrant colors, fluid shapes, modern composition, high contrast, artistic masterpiece",
-        image: "https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop"
-    },
-    {
-        id: 5,
-        title: {
-            fa: "طبیعت وحشی",
-            en: "Wildlife Nature"
-        },
-        prompt: "Wildlife photography, majestic animal in natural habitat, golden hour, professional camera, National Geographic style",
-        image: "https://images.unsplash.com/photo-1549366021-9f761d040a94?w=400&h=300&fit=crop"
-    },
-    {
-        id: 6,
-        title: {
-            fa: "فضای کیهانی",
-            en: "Cosmic Space"
-        },
-        prompt: "Deep space photography, nebula and stars, cosmic colors, ultra high resolution, astronomical beauty, NASA quality",
-        image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop"
-    }
-];
+// Sample data for prompts and wallpapers with bilingual support
+const promptsData = [];
 
-// Sample wallpapers data - empty by default
-const wallpapersData = [];
+const wallpapersData = [
+];
 
 // Global variables
 let currentLanguage = 'fa';
@@ -71,6 +16,103 @@ const sections = document.querySelectorAll('.section');
 const promptsGrid = document.getElementById('prompts-grid');
 const wallpapersGrid = document.getElementById('wallpapers-grid');
 const filterButtons = document.querySelectorAll('.filter-btn');
+
+// Notification System
+let notificationId = 0;
+
+function showNotification(message, type = 'info', duration = 4000) {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+    
+    const id = ++notificationId;
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.setAttribute('data-id', id);
+    
+    // Get appropriate icon based on type
+    let iconSvg = '';
+    switch(type) {
+        case 'success':
+            iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+            break;
+        case 'error':
+            iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+            break;
+        case 'warning':
+            iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>';
+            break;
+        case 'info':
+        default:
+            iconSvg = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+            break;
+    }
+    
+    notification.innerHTML = `
+        <svg class="notification-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            ${iconSvg}
+        </svg>
+        <div class="notification-content">${message}</div>
+        <button class="notification-close" onclick="hideNotification(${id})">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        <div class="notification-progress" style="width: 100%;"></div>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Trigger animation
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Auto dismiss with progress bar
+    if (duration > 0) {
+        const progressBar = notification.querySelector('.notification-progress');
+        if (progressBar) {
+            progressBar.style.transition = `width ${duration}ms linear`;
+            setTimeout(() => {
+                progressBar.style.width = '0%';
+            }, 50);
+        }
+        
+        setTimeout(() => {
+            hideNotification(id);
+        }, duration);
+    }
+    
+    return id;
+}
+
+function hideNotification(id) {
+    const notification = document.querySelector(`[data-id="${id}"]`);
+    if (!notification) return;
+    
+    notification.classList.remove('show');
+    notification.classList.add('hide');
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 300);
+}
+
+function clearAllNotifications() {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+    
+    const notifications = container.querySelectorAll('.notification');
+    notifications.forEach(notification => {
+        notification.classList.remove('show');
+        notification.classList.add('hide');
+    });
+    
+    setTimeout(() => {
+        container.innerHTML = '';
+    }, 300);
+}
 
 // Authentication elements
 const authModal = document.getElementById('auth-modal');
@@ -91,81 +133,11 @@ const userNameSpan = document.getElementById('user-name');
 // Modal elements
 const contactModal = document.getElementById('contact-modal');
 const aboutModal = document.getElementById('about-modal');
-const profileModal = document.getElementById('profile-modal');
 const contactBtn = document.getElementById('contact-btn');
 const aboutBtn = document.getElementById('about-btn');
-const profileBtn = document.getElementById('profile-btn');
 const closeContactModal = document.getElementById('close-contact-modal');
 const closeAboutModal = document.getElementById('close-about-modal');
-const closeProfileModal = document.getElementById('close-profile-modal');
 const contactForm = document.getElementById('contact-form');
-
-// Local storage management
-function saveUserState() {
-    const userState = {
-        language: currentLanguage,
-        filter: currentFilter,
-        currentSection: getCurrentActiveSection(),
-        timestamp: Date.now()
-    };
-    localStorage.setItem('userState', JSON.stringify(userState));
-}
-
-function loadUserState() {
-    try {
-        const savedState = localStorage.getItem('userState');
-        if (savedState) {
-            const userState = JSON.parse(savedState);
-            
-            // Check if state is not too old (24 hours)
-            const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-            if (Date.now() - userState.timestamp < maxAge) {
-                // Restore language
-                if (userState.language) {
-                    currentLanguage = userState.language;
-                }
-                
-                // Restore filter
-                if (userState.filter) {
-                    currentFilter = userState.filter;
-                }
-                
-                // Restore section (will be applied after DOM is ready)
-                if (userState.currentSection) {
-                    setTimeout(() => {
-                        switchSection(userState.currentSection);
-                        updateActiveFilter();
-                    }, 100);
-                }
-                
-                return true;
-            }
-        }
-    } catch (error) {
-        console.log('Failed to load user state:', error);
-    }
-    return false;
-}
-
-function getCurrentActiveSection() {
-    const activeSection = document.querySelector('.section:not(.hidden)');
-    if (activeSection) {
-        return activeSection.id.replace('-section', '');
-    }
-    return 'prompts'; // default
-}
-
-function updateActiveFilter() {
-    // Update filter button states
-    filterButtons.forEach(btn => {
-        btn.classList.remove('active', 'bg-black', 'text-white');
-        btn.classList.add('bg-gray-100', 'text-gray-700');
-        if (btn.dataset.filter === currentFilter) {
-            btn.classList.remove('bg-gray-100', 'text-gray-700');
-            btn.classList.add('active', 'bg-black', 'text-white');
-        }
-    });
-}
 
 // Language management
 function initLanguage() {
@@ -178,7 +150,6 @@ function toggleLanguage() {
     currentLanguage = currentLanguage === 'fa' ? 'en' : 'fa';
     localStorage.setItem('language', currentLanguage);
     updateLanguage();
-    saveUserState(); // Save state when language changes
 }
 
 function updateLanguage() {
@@ -208,6 +179,19 @@ function updateLanguage() {
         const placeholder = currentLanguage === 'fa' ? element.getAttribute('data-fa-placeholder') : element.getAttribute('data-en-placeholder');
         element.placeholder = placeholder;
     });
+    
+    // Update phone placeholders for new language
+    const loginCountrySelect = document.getElementById('login-country-select');
+    const loginPhoneInput = document.getElementById('login-phone');
+    const registerCountrySelect = document.getElementById('country-select');
+    const registerPhoneInput = document.getElementById('register-phone');
+    
+    if (loginCountrySelect && loginPhoneInput) {
+        updatePhonePlaceholder(loginCountrySelect, loginPhoneInput);
+    }
+    if (registerCountrySelect && registerPhoneInput) {
+        updatePhonePlaceholder(registerCountrySelect, registerPhoneInput);
+    }
     
     // Re-render content
     renderPrompts();
@@ -256,24 +240,19 @@ function switchSection(targetSection) {
         activeBtn.style.backgroundColor = 'black';
         activeBtn.style.color = 'white';
     }
-    
-    // Save state when section changes
-    saveUserState();
 }
 
 // Load prompts from API
 async function loadPromptsFromAPI() {
     try {
         const response = await fetch('/api/content/prompts');
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.prompts && data.prompts.length > 0) {
-                return data.prompts;
-            }
+        const data = await response.json();
+        
+        if (data.success && data.prompts.length > 0) {
+            return data.prompts;
         }
     } catch (error) {
-        // Silent fallback - don't log errors for missing API
-        console.log('API not available, using fallback data');
+        console.error('Failed to load prompts from API:', error);
     }
     
     // Fallback to hardcoded data
@@ -284,15 +263,13 @@ async function loadPromptsFromAPI() {
 async function loadWallpapersFromAPI() {
     try {
         const response = await fetch('/api/content/wallpapers');
-        if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.wallpapers && data.wallpapers.length > 0) {
-                return data.wallpapers;
-            }
+        const data = await response.json();
+        
+        if (data.success && data.wallpapers.length > 0) {
+            return data.wallpapers;
         }
     } catch (error) {
-        // Silent fallback - don't log errors for missing API
-        console.log('API not available, using fallback data');
+        console.error('Failed to load wallpapers from API:', error);
     }
     
     // Fallback to hardcoded data
@@ -301,10 +278,7 @@ async function loadWallpapersFromAPI() {
 
 // Prompt rendering
 async function renderPrompts() {
-    // Clear existing content properly
-    while (promptsGrid.firstChild) {
-        promptsGrid.removeChild(promptsGrid.firstChild);
-    }
+    promptsGrid.innerHTML = '';
     
     const prompts = await loadPromptsFromAPI();
     
@@ -336,28 +310,132 @@ async function renderPrompts() {
         
         const title = prompt.title[currentLanguage];
         const copyText = currentLanguage === 'fa' ? 'کپی پرامپت' : 'Copy Prompt';
+        const loginText = currentLanguage === 'fa' ? 'ورود برای مشاهده' : 'Login to View';
+        
+        // Create preview text based on login status
+        let previewText;
+        let buttonText;
+        let buttonAction;
+        
+        if (currentUser) {
+            // User is logged in - show full preview and copy functionality
+            previewText = prompt.prompt.length > 80 ? prompt.prompt.substring(0, 80) + '...' : prompt.prompt;
+            buttonText = copyText;
+            buttonAction = `event.stopPropagation(); copyPromptFromCard('${prompt.prompt.replace(/'/g, "\\'")}', '${title.replace(/'/g, "\\'")}')`;
+        } else {
+            // User is not logged in - show limited preview and login prompt
+            previewText = prompt.prompt.length > 30 ? prompt.prompt.substring(0, 30) + '...' : prompt.prompt;
+            buttonText = loginText;
+            buttonAction = `event.stopPropagation(); showLoginPrompt()`;
+        }
+        
+        const lockOverlay = !currentUser ? `
+            <!-- Lock overlay for non-logged users -->
+            <div class="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
+                <div class="bg-white/20 rounded-full p-3">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+            </div>
+        ` : '';
         
         promptCard.innerHTML = `
-            <div class="relative">
-                <img src="${prompt.image}" alt="${title}" class="w-full h-48 object-contain bg-gray-50" 
+            <div class="relative cursor-pointer group h-80 overflow-hidden" onclick="showPromptModal('${prompt.id}')">
+                <!-- Background Image -->
+                <img src="${prompt.image}" alt="${title}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ci8+CjxwYXRoIGQ9Ik0xNzUgMTI1SDE2MjVWMTc1SDE3NVYxMjVaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPg=='; this.classList.add('image-placeholder');">
-            </div>
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-4 text-black">${title}</h3>
-                <div class="mb-6">
-                <p class="text-gray-600 text-sm bg-gray-50 p-4 rounded-2xl font-mono leading-relaxed border-l-4" style="border-left-color: #A9B689;">
-                    ${prompt.prompt}
-                </p>
-            </div>
-                <button class="copy-btn w-full bg-black hover:opacity-80 text-white py-3 px-6 rounded-2xl font-semibold transition-all duration-200" 
-                        onclick="copyPrompt('${prompt.prompt.replace(/'/g, "\\'")}', this)">
-                    ${copyText}
-                </button>
+                
+                <!-- Dark gradient overlay for text readability -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                
+                <!-- Hover overlay -->
+                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+                
+                ${lockOverlay}
+                
+                <!-- Content overlay -->
+                <div class="absolute inset-0 flex flex-col justify-between p-4">
+                    <!-- Top section - View icon (appears on hover) -->
+                    <div class="flex justify-center items-start">
+                        <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div class="bg-white bg-opacity-90 rounded-full p-2 shadow-lg">
+                                <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom section - Title, preview text, and button -->
+                    <div class="space-y-3">
+                        <h3 class="text-white font-bold text-lg leading-tight drop-shadow-lg">${title}</h3>
+                        <p class="text-white/90 text-sm leading-relaxed drop-shadow-md line-clamp-2">${previewText}</p>
+                        <button class="copy-btn w-full bg-white/90 hover:bg-white text-black py-2.5 px-4 rounded-2xl font-medium transition-all duration-200 backdrop-blur-sm shadow-lg" 
+                                onclick="${buttonAction}">
+                            ${buttonText}
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
         
         promptsGrid.appendChild(promptCard);
     });
+}
+
+// Show login prompt for non-logged users
+function showLoginPrompt() {
+    const message = currentLanguage === 'fa' 
+        ? 'برای کپی کردن و مشاهده پرامپت‌ها باید وارد حساب کاربری خود شوید.'
+        : 'Please login to copy and view prompts.';
+    showNotification(message, 'warning');
+    showModal();
+    showLoginForm();
+}
+
+// Prompt Modal functions
+async function showPromptModal(promptId) {
+    // Check if user is logged in
+    if (!currentUser) {
+        const message = currentLanguage === 'fa' 
+            ? 'برای مشاهده پرامپت کامل باید وارد حساب کاربری خود شوید.'
+            : 'Please login to view full prompts.';
+        showNotification(message, 'warning');
+        showModal();
+        showLoginForm();
+        return;
+    }
+    
+    const prompts = await loadPromptsFromAPI();
+    const prompt = prompts.find(p => p.id == promptId);
+    if (!prompt) return;
+    
+    const modal = document.getElementById('prompt-modal');
+    const modalImage = document.getElementById('prompt-modal-image');
+    const modalTitle = document.getElementById('prompt-modal-title');
+    const modalText = document.getElementById('prompt-modal-text');
+    const modalCopyBtn = document.getElementById('prompt-modal-copy');
+    
+    // Set modal content
+    modalImage.src = prompt.image;
+    modalImage.alt = prompt.title[currentLanguage];
+    modalTitle.textContent = prompt.title[currentLanguage];
+    modalText.textContent = prompt.prompt;
+    
+    // Update copy button onclick
+    modalCopyBtn.onclick = () => copyPromptFromCard(prompt.prompt, prompt.title[currentLanguage]);
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function hidePromptModal() {
+    const modal = document.getElementById('prompt-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 }
 
 // Modal functions
@@ -381,118 +459,6 @@ function hideAboutModal() {
     aboutModal.classList.remove('flex');
 }
 
-function showProfileModal() {
-    profileModal.classList.remove('hidden');
-    profileModal.classList.add('flex');
-    loadUserProfile();
-}
-
-function hideProfileModal() {
-    profileModal.classList.add('hidden');
-    profileModal.classList.remove('flex');
-}
-
-async function loadUserProfile() {
-    if (!currentUser) return;
-    
-    // Update profile info
-    document.getElementById('profile-name').textContent = currentUser.name;
-    document.getElementById('profile-phone').textContent = currentUser.phone;
-    document.getElementById('profile-downloads').textContent = currentUser.downloads || 0;
-    
-    // Format date
-    const joinDate = new Date(currentUser.createdAt).toLocaleDateString(currentLanguage === 'fa' ? 'fa-IR' : 'en-US');
-    document.getElementById('profile-date').textContent = joinDate;
-    
-    // Load purchased wallpapers
-    await loadPurchasedWallpapers();
-}
-
-async function loadPurchasedWallpapers() {
-    try {
-        const response = await fetch('/api/user/purchases', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('userToken') || ''}`
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            displayPurchasedWallpapers(data.purchases || []);
-        } else {
-            displayPurchasedWallpapers([]);
-        }
-    } catch (error) {
-        console.error('Failed to load purchases:', error);
-        displayPurchasedWallpapers([]);
-    }
-}
-
-function displayPurchasedWallpapers(purchases) {
-    const purchasedContainer = document.getElementById('purchased-wallpapers');
-    const noPurchases = document.getElementById('no-purchases');
-    
-    document.getElementById('profile-purchases').textContent = purchases.length;
-    
-    if (purchases.length === 0) {
-        purchasedContainer.classList.add('hidden');
-        noPurchases.classList.remove('hidden');
-        return;
-    }
-    
-    purchasedContainer.classList.remove('hidden');
-    noPurchases.classList.add('hidden');
-    purchasedContainer.innerHTML = '';
-    
-    purchases.forEach(purchase => {
-        const wallpaperElement = document.createElement('div');
-        wallpaperElement.className = 'bg-gray-50 rounded-2xl overflow-hidden';
-        wallpaperElement.innerHTML = `
-            <img src="${purchase.wallpaper.image}" alt="${purchase.wallpaper.title[currentLanguage]}" 
-                 class="w-full h-24 object-cover">
-            <div class="p-3">
-                <h6 class="font-medium text-sm text-black mb-1">${purchase.wallpaper.title[currentLanguage]}</h6>
-                <p class="text-xs text-gray-500">${new Date(purchase.purchaseDate).toLocaleDateString(currentLanguage === 'fa' ? 'fa-IR' : 'en-US')}</p>
-                <button onclick="downloadPurchasedWallpaper('${purchase.wallpaper.id}')" 
-                        class="w-full mt-2 bg-black text-white py-1 px-2 rounded-xl text-xs hover:opacity-80 transition-all duration-200">
-                    ${currentLanguage === 'fa' ? 'دانلود مجدد' : 'Download Again'}
-                </button>
-            </div>
-        `;
-        purchasedContainer.appendChild(wallpaperElement);
-    });
-}
-
-async function downloadPurchasedWallpaper(wallpaperId) {
-    try {
-        const response = await fetch('/api/wallpapers/download', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ wallpaperId: wallpaperId })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            // Start download
-            const link = document.createElement('a');
-            link.href = data.downloadUrl;
-            link.download = `wallpaper-${wallpaperId}.jpg`;
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } else {
-            alert(data.error || (currentLanguage === 'fa' ? 'خطا در دانلود' : 'Download failed'));
-        }
-    } catch (error) {
-        console.error('Download error:', error);
-        alert(currentLanguage === 'fa' ? 'خطا در دانلود' : 'Download failed');
-    }
-}
-
 function handleContactForm(event) {
     event.preventDefault();
     
@@ -506,42 +472,156 @@ function handleContactForm(event) {
         ? 'پیام شما با موفقیت ارسال شد! به زودی با شما تماس خواهیم گرفت.'
         : 'Your message has been sent successfully! We will contact you soon.';
     
-    alert(successMessage);
+    showNotification(successMessage, 'success');
     
     // Reset form
     contactForm.reset();
     hideContactModal();
 }
 
+// Authentication mode management
+let loginMode = 'phone'; // 'phone' or 'username'
+let registerMode = 'phone'; // 'phone' or 'username'
+
+function toggleLoginMode(mode) {
+    loginMode = mode;
+    const phoneFields = document.getElementById('login-phone-fields');
+    const usernameFields = document.getElementById('login-username-fields');
+    const phoneBtn = document.getElementById('login-mode-phone');
+    const usernameBtn = document.getElementById('login-mode-username');
+    
+    if (mode === 'phone') {
+        phoneFields.classList.remove('hidden');
+        usernameFields.classList.add('hidden');
+        phoneBtn.classList.add('bg-black', 'text-white');
+        phoneBtn.classList.remove('text-gray-600');
+        usernameBtn.classList.remove('bg-black', 'text-white');
+        usernameBtn.classList.add('text-gray-600');
+        
+        // Update required attributes
+        document.getElementById('login-phone').required = true;
+        document.getElementById('login-username').required = false;
+    } else {
+        phoneFields.classList.add('hidden');
+        usernameFields.classList.remove('hidden');
+        usernameBtn.classList.add('bg-black', 'text-white');
+        usernameBtn.classList.remove('text-gray-600');
+        phoneBtn.classList.remove('bg-black', 'text-white');
+        phoneBtn.classList.add('text-gray-600');
+        
+        // Update required attributes
+        document.getElementById('login-phone').required = false;
+        document.getElementById('login-username').required = true;
+    }
+}
+
+function toggleRegisterMode(mode) {
+    registerMode = mode;
+    const phoneFields = document.getElementById('register-phone-fields');
+    const usernameFields = document.getElementById('register-username-fields');
+    const phoneBtn = document.getElementById('register-mode-phone');
+    const usernameBtn = document.getElementById('register-mode-username');
+    
+    if (mode === 'phone') {
+        phoneFields.classList.remove('hidden');
+        usernameFields.classList.add('hidden');
+        phoneBtn.classList.add('bg-black', 'text-white');
+        phoneBtn.classList.remove('text-gray-600');
+        usernameBtn.classList.remove('bg-black', 'text-white');
+        usernameBtn.classList.add('text-gray-600');
+        
+        // Update required attributes
+        document.getElementById('register-phone').required = true;
+        document.getElementById('register-username').required = false;
+    } else {
+        phoneFields.classList.add('hidden');
+        usernameFields.classList.remove('hidden');
+        usernameBtn.classList.add('bg-black', 'text-white');
+        usernameBtn.classList.remove('text-gray-600');
+        phoneBtn.classList.remove('bg-black', 'text-white');
+        phoneBtn.classList.add('text-gray-600');
+        
+        // Update required attributes
+        document.getElementById('register-phone').required = false;
+        document.getElementById('register-username').required = true;
+    }
+}
+
+// Phone placeholder management
+function updatePhonePlaceholder(selectElement, inputElement) {
+    const selectedCountry = selectElement.value;
+    const isEnglish = currentLanguage === 'en';
+    
+    if (selectedCountry === '+98') {
+        // Iran format
+        if (isEnglish) {
+            inputElement.placeholder = '9123456789';
+        } else {
+            inputElement.placeholder = '۹۱۲۳۴۵۶۷۸۹';
+        }
+    } else if (selectedCountry === '+1') {
+        // USA format
+        if (isEnglish) {
+            inputElement.placeholder = '2025551234';
+        } else {
+            inputElement.placeholder = '۲۰۲۵۵۵۱۲۳۴';
+        }
+    }
+}
+
+// Password visibility toggle
+function setupPasswordToggle(formType) {
+    const toggleBtn = document.getElementById(`toggle-${formType}-password`);
+    const passwordInput = document.getElementById(`${formType}-password`);
+    const eyeClosed = document.getElementById(`${formType}-eye-closed`);
+    const eyeOpen = document.getElementById(`${formType}-eye-open`);
+    
+    if (toggleBtn && passwordInput && eyeClosed && eyeOpen) {
+        toggleBtn.addEventListener('click', () => {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeClosed.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password';
+                eyeClosed.classList.remove('hidden');
+                eyeOpen.classList.add('hidden');
+            }
+        });
+    }
+}
+
+// Test function to simulate login (for development/testing)
+function simulateLogin() {
+    currentUser = {
+        name: 'کاربر تست',
+        phone: '+989123456789',
+        id: 1
+    };
+    updateAuthUI();
+    showNotification(currentLanguage === 'fa' ? 'ورود تست انجام شد!' : 'Test login successful!', 'success');
+}
+
+function simulateLogout() {
+    currentUser = null;
+    updateAuthUI();
+    showNotification(currentLanguage === 'fa' ? 'خروج تست انجام شد!' : 'Test logout successful!', 'info');
+}
+
 // Authentication functions
 async function checkAuthStatus() {
     try {
-        const userToken = localStorage.getItem('userToken');
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        
-        if (userToken) {
-            headers['Authorization'] = `Bearer ${userToken}`;
-        }
-        
-        const response = await fetch('/api/user/profile', {
-            headers: headers
-        });
-        
+        const response = await fetch('/api/user/profile');
         if (response.ok) {
             const data = await response.json();
             currentUser = data.user;
             updateAuthUI();
         } else {
-            // Clear invalid token
-            localStorage.removeItem('userToken');
             currentUser = null;
             updateAuthUI();
         }
     } catch (error) {
         console.error('Auth check failed:', error);
-        localStorage.removeItem('userToken');
         currentUser = null;
         updateAuthUI();
     }
@@ -556,6 +636,9 @@ function updateAuthUI() {
         loggedOutSection.classList.remove('hidden');
         loggedInSection.classList.add('hidden');
     }
+    
+    // Re-render prompts to update login-dependent content
+    renderPrompts();
 }
 
 function showModal() {
@@ -581,11 +664,17 @@ function showRegisterForm() {
 async function handleLogin(event) {
     event.preventDefault();
     
-    const countryCode = document.getElementById('login-country-select').value;
-    const phoneNumber = document.getElementById('login-phone').value;
     const password = document.getElementById('login-password').value;
+    let loginData = { password };
     
-    const fullPhone = countryCode + phoneNumber;
+    if (loginMode === 'phone') {
+        const countryCode = document.getElementById('login-country-select').value;
+        const phoneNumber = document.getElementById('login-phone').value;
+        loginData.phone = countryCode + phoneNumber;
+    } else {
+        const username = document.getElementById('login-username').value;
+        loginData.username = username;
+    }
     
     try {
         const response = await fetch('/api/auth/login', {
@@ -593,28 +682,22 @@ async function handleLogin(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ phone: fullPhone, password })
+            body: JSON.stringify(loginData)
         });
         
         const data = await response.json();
         
         if (response.ok) {
             currentUser = data.user;
-            
-            // Store session token if provided
-            if (data.sessionToken) {
-                localStorage.setItem('userToken', data.sessionToken);
-            }
-            
             updateAuthUI();
             hideModal();
-            alert(currentLanguage === 'fa' ? 'با موفقیت وارد شدید!' : 'Login successful!');
+            showNotification(currentLanguage === 'fa' ? 'با موفقیت وارد شدید!' : 'Login successful!', 'success');
         } else {
-            alert(data.error || (currentLanguage === 'fa' ? 'خطا در ورود' : 'Login failed'));
+            showNotification(data.error || (currentLanguage === 'fa' ? 'خطا در ورود' : 'Login failed'), 'error');
         }
     } catch (error) {
         console.error('Login error:', error);
-        alert(currentLanguage === 'fa' ? 'خطا در ورود' : 'Login failed');
+        showNotification(currentLanguage === 'fa' ? 'خطا در ورود' : 'Login failed', 'error');
     }
 }
 
@@ -622,20 +705,27 @@ async function handleRegister(event) {
     event.preventDefault();
     
     const name = document.getElementById('register-name').value;
-    const countryCode = document.getElementById('country-select').value;
-    const phoneNumber = document.getElementById('register-phone').value;
     const password = document.getElementById('register-password').value;
     const captchaInput = document.getElementById('captcha-input').value;
     
     // Validate captcha
     if (!validateCaptcha(captchaInput)) {
-        alert(currentLanguage === 'fa' ? 'کد امنیتی اشتباه است!' : 'Security code is incorrect!');
+        showNotification(currentLanguage === 'fa' ? 'کد امنیتی اشتباه است!' : 'Security code is incorrect!', 'error');
         generateCaptcha(); // Generate new captcha
         document.getElementById('captcha-input').value = '';
         return;
     }
     
-    const fullPhone = countryCode + phoneNumber;
+    let registerData = { name, password };
+    
+    if (registerMode === 'phone') {
+        const countryCode = document.getElementById('country-select').value;
+        const phoneNumber = document.getElementById('register-phone').value;
+        registerData.phone = countryCode + phoneNumber;
+    } else {
+        const username = document.getElementById('register-username').value;
+        registerData.username = username;
+    }
     
     try {
         const response = await fetch('/api/auth/register', {
@@ -643,38 +733,22 @@ async function handleRegister(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ name, phone: fullPhone, password })
+            body: JSON.stringify(registerData)
         });
         
         const data = await response.json();
         
         if (response.ok) {
-            // Check if auto-login is enabled
-            if (data.autoLogin && data.user) {
-                // Auto-login successful
-                currentUser = data.user;
-                updateAuthUI();
-                hideModal();
-                
-                // Store session token if provided
-                if (data.sessionToken) {
-                    localStorage.setItem('userToken', data.sessionToken);
-                }
-                
-                alert(currentLanguage === 'fa' ? 'حساب کاربری با موفقیت ایجاد شد و وارد سیستم شدید!' : 'Account created successfully and you are now logged in!');
-            } else {
-                // Fallback to manual login
-                alert(currentLanguage === 'fa' ? 'حساب کاربری با موفقیت ایجاد شد!' : 'Account created successfully!');
-                showLoginForm();
-            }
+            showNotification(currentLanguage === 'fa' ? 'حساب کاربری با موفقیت ایجاد شد!' : 'Account created successfully!', 'success');
+            showLoginForm();
         } else {
-            alert(data.error || (currentLanguage === 'fa' ? 'خطا در ثبت نام' : 'Registration failed'));
+            showNotification(data.error || (currentLanguage === 'fa' ? 'خطا در ثبت نام' : 'Registration failed'), 'error');
             generateCaptcha(); // Generate new captcha on error
             document.getElementById('captcha-input').value = '';
         }
     } catch (error) {
         console.error('Registration error:', error);
-        alert(currentLanguage === 'fa' ? 'خطا در ثبت نام' : 'Registration failed');
+        showNotification(currentLanguage === 'fa' ? 'خطا در ثبت نام' : 'Registration failed', 'error');
         generateCaptcha(); // Generate new captcha on error
         document.getElementById('captcha-input').value = '';
     }
@@ -687,16 +761,12 @@ async function handleLogout() {
         });
         
         if (response.ok) {
-            // Clear session token
-            localStorage.removeItem('userToken');
             currentUser = null;
             updateAuthUI();
-            alert(currentLanguage === 'fa' ? 'با موفقیت خارج شدید!' : 'Logout successful!');
+            showNotification(currentLanguage === 'fa' ? 'با موفقیت خارج شدید!' : 'Logout successful!', 'success');
         }
     } catch (error) {
         console.error('Logout error:', error);
-        // Clear session token even if logout API fails
-        localStorage.removeItem('userToken');
         currentUser = null;
         updateAuthUI();
     }
@@ -722,10 +792,7 @@ function filterWallpapers(filter, wallpapers) {
 
 // Wallpaper rendering
 async function renderWallpapers() {
-    // Clear existing content properly
-    while (wallpapersGrid.firstChild) {
-        wallpapersGrid.removeChild(wallpapersGrid.firstChild);
-    }
+    wallpapersGrid.innerHTML = '';
     
     const wallpapers = await loadWallpapersFromAPI();
     const filtered = filterWallpapers(currentFilter, wallpapers);
@@ -775,7 +842,7 @@ async function renderWallpapers() {
         wallpaperCard.innerHTML = `
             <div class="relative">
                 <img src="${wallpaper.image}" alt="${title}" 
-                     class="w-full h-56 object-contain bg-gray-50" 
+                     class="w-full h-56 object-cover" 
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDgwMCA2MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0zNTAgMjUwSDQ1MFYzNTBIMzUwVjI1MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+'; this.classList.add('image-placeholder')">
                 <div class="absolute top-3 ${currentLanguage === 'fa' ? 'right-3' : 'left-3'}">
                     ${priceInfo}
@@ -798,14 +865,48 @@ async function renderWallpapers() {
     });
 }
 
-// Copy prompt functionality
+// Copy prompt functionality from card click
+function copyPromptFromCard(prompt, title) {
+    // Check if user is logged in
+    if (!currentUser) {
+        const message = currentLanguage === 'fa' 
+            ? 'برای کپی کردن پرامپت باید وارد حساب کاربری خود شوید.'
+            : 'Please login to copy prompts.';
+        showNotification(message, 'warning');
+        showModal();
+        showLoginForm();
+        return;
+    }
+    
+    navigator.clipboard.writeText(prompt).then(() => {
+        const successMessage = currentLanguage === 'fa' 
+            ? `پرامپت "${title}" کپی شد!`
+            : `Prompt "${title}" copied!`;
+        showNotification(successMessage, 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = prompt;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        const successMessage = currentLanguage === 'fa' 
+            ? `پرامپت "${title}" کپی شد!`
+            : `Prompt "${title}" copied!`;
+        showNotification(successMessage, 'success');
+    });
+}
+
+// Legacy copy prompt functionality (keeping for compatibility)
 function copyPrompt(prompt, button) {
     // Check if user is logged in
     if (!currentUser) {
         const message = currentLanguage === 'fa' 
             ? 'برای کپی کردن پرامپت باید وارد حساب کاربری خود شوید.'
             : 'Please login to copy prompts.';
-        alert(message);
+        showNotification(message, 'warning');
         showModal();
         showLoginForm();
         return;
@@ -849,14 +950,13 @@ async function downloadWallpaper(id) {
         const message = currentLanguage === 'fa' 
             ? 'برای دانلود والپیپر باید وارد حساب کاربری خود شوید.'
             : 'Please login to download wallpapers.';
-        alert(message);
+        showNotification(message, 'warning');
         showModal();
         showLoginForm();
         return;
     }
     
-    const wallpapers = await loadWallpapersFromAPI();
-    const wallpaper = wallpapers.find(w => w.id === id);
+    const wallpaper = wallpapersData.find(w => w.id === id);
     if (!wallpaper) return;
     
     try {
@@ -885,51 +985,50 @@ async function downloadWallpaper(id) {
             renderWallpapers();
             
             const successMessage = currentLanguage === 'fa' ? 'دانلود شروع شد!' : 'Download started!';
-            alert(successMessage);
+            showNotification(successMessage, 'success');
         } else {
             if (data.requiresAuth) {
                 const message = currentLanguage === 'fa' 
                     ? 'برای دانلود والپیپر پریمیوم باید وارد حساب کاربری شوید.'
                     : 'Please login to download premium wallpapers.';
-                alert(message);
+                showNotification(message, 'warning');
                 showModal();
                 showLoginForm();
             } else if (data.requiresPremium) {
                 const message = currentLanguage === 'fa' 
                     ? 'برای دانلود این والپیپر نیاز به اشتراک پریمیوم دارید.'
                     : 'Premium subscription required for this wallpaper.';
-                alert(message);
+                showNotification(message, 'warning');
             } else {
-                alert(data.error || (currentLanguage === 'fa' ? 'خطا در دانلود' : 'Download failed'));
+                showNotification(data.error || (currentLanguage === 'fa' ? 'خطا در دانلود' : 'Download failed'), 'error');
             }
         }
     } catch (error) {
         console.error('Download error:', error);
-        alert(currentLanguage === 'fa' ? 'خطا در دانلود' : 'Download failed');
+        showNotification(currentLanguage === 'fa' ? 'خطا در دانلود' : 'Download failed', 'error');
     }
 }
 
+// Make test functions available globally for console testing
+window.testLogin = simulateLogin;
+window.testLogout = simulateLogout;
+
+// Console message for developers
+console.log('🎉 iMagera Admin System Ready!');
+console.log('📝 All default prompts and wallpapers have been removed.');
+console.log('🔧 Use admin panel at /adminpanel/ to add content.');
+console.log('🧪 Test login: testLogin() | Test logout: testLogout()');
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
-    // Load saved user state first
-    loadUserState();
-    
-    // Save state before page unload
-    window.addEventListener('beforeunload', saveUserState);
-    
-    // Periodic state saving (every 30 seconds)
-    setInterval(saveUserState, 30000);
-    
-    // Initialize language
+    // Initialize language and auth
     initLanguage();
-    
-    // Generate initial captcha
-    generateCaptcha();
-    
-    // Check authentication status
     checkAuthStatus();
     
-    // Initial render
+    // Initialize captcha
+    generateCaptcha();
+    
+    // Render initial content
     renderPrompts();
     renderWallpapers();
     
@@ -954,6 +1053,24 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal();
         showRegisterForm();
     });
+    
+    // Mobile authentication event listeners
+    const loginBtnMobile = document.getElementById('login-btn-mobile');
+    const registerBtnMobile = document.getElementById('register-btn-mobile');
+    
+    if (loginBtnMobile) {
+        loginBtnMobile.addEventListener('click', () => {
+            showModal();
+            showLoginForm();
+        });
+    }
+    
+    if (registerBtnMobile) {
+        registerBtnMobile.addEventListener('click', () => {
+            showModal();
+            showRegisterForm();
+        });
+    }
     
     logoutBtn.addEventListener('click', handleLogout);
     
@@ -980,9 +1097,50 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshCaptchaBtn.addEventListener('click', generateCaptcha);
     }
     
+    // Login/Register mode toggle buttons
+    const loginModePhone = document.getElementById('login-mode-phone');
+    const loginModeUsername = document.getElementById('login-mode-username');
+    const registerModePhone = document.getElementById('register-mode-phone');
+    const registerModeUsername = document.getElementById('register-mode-username');
+    
+    if (loginModePhone) {
+        loginModePhone.addEventListener('click', () => toggleLoginMode('phone'));
+    }
+    if (loginModeUsername) {
+        loginModeUsername.addEventListener('click', () => toggleLoginMode('username'));
+    }
+    if (registerModePhone) {
+        registerModePhone.addEventListener('click', () => toggleRegisterMode('phone'));
+    }
+    if (registerModeUsername) {
+        registerModeUsername.addEventListener('click', () => toggleRegisterMode('username'));
+    }
+    
     // Password visibility toggle buttons
     setupPasswordToggle('login');
     setupPasswordToggle('register');
+    
+    // Phone placeholder management
+    const loginCountrySelect = document.getElementById('login-country-select');
+    const loginPhoneInput = document.getElementById('login-phone');
+    const registerCountrySelect = document.getElementById('country-select');
+    const registerPhoneInput = document.getElementById('register-phone');
+    
+    if (loginCountrySelect && loginPhoneInput) {
+        loginCountrySelect.addEventListener('change', () => {
+            updatePhonePlaceholder(loginCountrySelect, loginPhoneInput);
+        });
+        // Set initial placeholder
+        updatePhonePlaceholder(loginCountrySelect, loginPhoneInput);
+    }
+    
+    if (registerCountrySelect && registerPhoneInput) {
+        registerCountrySelect.addEventListener('change', () => {
+            updatePhonePlaceholder(registerCountrySelect, registerPhoneInput);
+        });
+        // Set initial placeholder
+        updatePhonePlaceholder(registerCountrySelect, registerPhoneInput);
+    }
     
     // Contact and About modal event listeners
     contactBtn.addEventListener('click', showContactModal);
@@ -991,12 +1149,18 @@ document.addEventListener('DOMContentLoaded', () => {
     closeAboutModal.addEventListener('click', hideAboutModal);
     contactForm.addEventListener('submit', handleContactForm);
     
-    // Profile modal event listeners
-    if (profileBtn) {
-        profileBtn.addEventListener('click', showProfileModal);
+    // Prompt modal event listeners
+    const closePromptModal = document.getElementById('close-prompt-modal');
+    const promptModal = document.getElementById('prompt-modal');
+    if (closePromptModal) {
+        closePromptModal.addEventListener('click', hidePromptModal);
     }
-    if (closeProfileModal) {
-        closeProfileModal.addEventListener('click', hideProfileModal);
+    if (promptModal) {
+        promptModal.addEventListener('click', (e) => {
+            if (e.target === promptModal) {
+                hidePromptModal();
+            }
+        });
     }
     
     // Close modals when clicking outside
@@ -1011,14 +1175,6 @@ document.addEventListener('DOMContentLoaded', () => {
             hideAboutModal();
         }
     });
-    
-    if (profileModal) {
-        profileModal.addEventListener('click', (e) => {
-            if (e.target === profileModal) {
-                hideProfileModal();
-            }
-        });
-    }
     
     // Filter buttons
     filterButtons.forEach(btn => {
@@ -1041,18 +1197,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.style.backgroundColor = 'black';
             btn.style.color = 'white';
             
-            // Save state when filter changes
-            saveUserState();
-            
             // Re-render wallpapers
             renderWallpapers();
         });
     });
-    
-    // Save state before page unload
-    window.addEventListener('beforeunload', saveUserState);
-    
-    // Periodic state saving (every 30 seconds)
-    setInterval(saveUserState, 30000);
 });
-

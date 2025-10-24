@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-en="iMagera | AI Prompts & Wallpapers Collection" data-fa="iMagera | مجموعه پرامپت و والپیپر هوش مصنوعی">iMagera | مجموعه پرامپت و والپیپر هوش مصنوعی</title>
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -27,59 +28,77 @@
 </head>
 <body class="font-vazir bg-white text-black min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-100">
-        <div class="container mx-auto px-6 py-6">
+    <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-30">
+        <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-6">
             <div class="flex justify-between items-center">
                 <!-- Logo Section -->
                 <div class="flex items-center">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-black to-gray-700 rounded-3xl flex items-center justify-center shadow-lg">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden shadow-lg bg-gradient-to-br from-black to-gray-700 flex items-center justify-center p-1">
+                            <img src="logo.svg" alt="iMagera Logo" class="w-full h-full object-cover rounded-full" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <svg class="w-8 h-8 sm:w-9 sm:h-9 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                             </svg>
                         </div>
-                        <div>
-                            <h1 class="text-3xl font-bold text-black tracking-tight" data-en="iMagera" data-fa="iMagera">
+                        <div class="hidden sm:block">
+                            <h1 class="text-2xl sm:text-3xl font-bold text-black tracking-tight" data-en="iMagera" data-fa="iMagera">
                                 iMagera
                             </h1>
-                            <p class="text-sm text-gray-600 mt-1" data-en="AI Prompts & Wallpapers" data-fa="پرامپت و والپیپر هوش مصنوعی">
-                                پرامپت و والپیپر هوش مصنوعی
+                            <p class="text-xs sm:text-sm text-gray-600 mt-1" data-en="AI Prompts & Wallpapers" data-fa="پرامپت و والپیپر">
+                                پرامپت و والپیپر
                             </p>
+                        </div>
+                        <!-- Mobile title -->
+                        <div class="block sm:hidden">
+                            <h1 class="text-xl font-bold text-black tracking-tight" data-en="iMagera" data-fa="iMagera">
+                                iMagera
+                            </h1>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Right Section -->
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 sm:gap-4">
                     <!-- Language Toggle -->
-                    <button id="lang-toggle" class="w-11 h-11 bg-gray-100 hover:bg-gray-200 rounded-2xl flex items-center justify-center transition-all duration-200 border border-gray-200">
-                        <span id="lang-text" class="text-sm font-bold text-gray-700">EN</span>
+                    <button id="lang-toggle" class="w-10 h-10 sm:w-11 sm:h-11 bg-gray-100 hover:bg-gray-200 rounded-2xl flex items-center justify-center transition-all duration-200 border border-gray-200">
+                        <span id="lang-text" class="text-xs sm:text-sm font-bold text-gray-700">EN</span>
                     </button>
                     
                     <!-- User Authentication -->
                     <div id="auth-section">
                         <div id="logged-out" class="flex items-center">
-                            <div class="flex bg-gray-100 rounded-2xl p-1.5 border border-gray-200">
-                                <button id="login-btn" class="px-5 py-2.5 text-gray-600 hover:text-black font-medium transition-all duration-200 rounded-xl" data-en="Login" data-fa="ورود">
+                            <!-- Desktop auth buttons -->
+                            <div class="hidden sm:flex bg-gray-100 rounded-2xl p-1.5 border border-gray-200">
+                                <button id="login-btn" class="px-4 py-2.5 text-gray-600 hover:text-black font-medium transition-all duration-200 rounded-xl text-sm" data-en="Login" data-fa="ورود">
                                     ورود
                                 </button>
-                                <button id="register-btn" class="px-5 py-2.5 bg-black text-white rounded-xl hover:bg-gray-800 transition-all duration-200 font-medium shadow-sm" data-en="Register" data-fa="ثبت نام">
+                                <button id="register-btn" class="px-4 py-2.5 bg-black text-white rounded-xl hover:bg-gray-800 transition-all duration-200 font-medium shadow-sm text-sm" data-en="Register" data-fa="ثبت نام">
+                                    ثبت نام
+                                </button>
+                            </div>
+                            <!-- Mobile auth buttons -->
+                            <div class="flex sm:hidden gap-2">
+                                <button id="login-btn-mobile" class="px-3 py-2 text-gray-600 hover:text-black font-medium transition-all duration-200 rounded-xl text-sm border border-gray-200" data-en="Login" data-fa="ورود">
+                                    ورود
+                                </button>
+                                <button id="register-btn-mobile" class="px-3 py-2 bg-black text-white rounded-xl hover:bg-gray-800 transition-all duration-200 font-medium shadow-sm text-sm" data-en="Register" data-fa="ثبت نام">
                                     ثبت نام
                                 </button>
                             </div>
                         </div>
                         <div id="logged-in" class="hidden flex items-center">
-                            <div class="flex items-center gap-3 bg-gray-100 rounded-2xl px-5 py-3 border border-gray-200">
+                            <div class="flex items-center gap-2 sm:gap-3 bg-gray-100 rounded-2xl px-3 sm:px-5 py-2 sm:py-3 border border-gray-200">
                                 <button id="profile-btn" class="flex items-center gap-2 hover:bg-gray-200 rounded-xl px-2 py-1 transition-all duration-200">
-                                    <div class="w-9 h-9 bg-gradient-to-br from-black to-gray-700 rounded-full flex items-center justify-center shadow-sm">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-black to-gray-700 rounded-full flex items-center justify-center shadow-sm">
+                                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                         </svg>
                                     </div>
-                                    <span id="user-name" class="text-black font-medium"></span>
+                                    <span id="user-name" class="text-black font-medium text-sm hidden sm:inline"></span>
                                 </button>
                                 <button id="logout-btn" class="text-gray-500 hover:text-red-500 font-medium transition-all duration-200 p-1" data-en="Logout" data-fa="خروج">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                                     </svg>
                                 </button>
@@ -92,14 +111,14 @@
     </header>
 
     <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-40">
-        <div class="container mx-auto px-6">
+    <nav class="bg-white border-b border-gray-100 sticky top-16 sm:top-20 z-40">
+        <div class="container mx-auto px-4 sm:px-6">
             <div class="flex justify-center">
-                <div class="flex bg-gray-100 rounded-3xl p-1 my-4">
-                    <button class="nav-btn active px-8 py-3 rounded-2xl bg-black text-white font-medium transition-all duration-300" data-section="prompts" data-en="Prompts" data-fa="پرامپت ها">
+                <div class="flex bg-gray-100 rounded-3xl p-1 my-3 sm:my-4 w-full max-w-xs sm:max-w-none sm:w-auto">
+                    <button class="nav-btn active flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-2xl bg-black text-white font-medium transition-all duration-300 text-sm sm:text-base" data-section="prompts" data-en="Prompts" data-fa="پرامپت ها">
                         پرامپت ها
                     </button>
-                    <button class="nav-btn px-8 py-3 rounded-2xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-200" data-section="wallpapers" data-en="Wallpapers" data-fa="والپیپرها">
+                    <button class="nav-btn flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-2xl text-gray-600 font-medium transition-all duration-300 hover:bg-gray-200 text-sm sm:text-base" data-section="wallpapers" data-en="Wallpapers" data-fa="والپیپرها">
                         والپیپرها
                     </button>
                 </div>
@@ -108,7 +127,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-6 py-12">
+    <main class="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <!-- Prompts Section -->
         <section id="prompts-section" class="section active">
             <div class="text-center mb-12">
@@ -171,113 +190,85 @@
         </div>
     </footer>
 
+    <!-- Prompt Detail Modal -->
+    <div id="prompt-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="flex flex-col md:flex-row h-full">
+                <!-- Image Section -->
+                <div class="md:w-1/2 bg-gray-50 flex items-center justify-center p-6">
+                    <img id="prompt-modal-image" src="" alt="" class="max-w-full max-h-96 object-contain rounded-2xl shadow-lg">
+                </div>
+                
+                <!-- Content Section -->
+                <div class="md:w-1/2 p-6 flex flex-col">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 id="prompt-modal-title" class="text-2xl font-bold text-black"></h3>
+                        <button id="close-prompt-modal" class="text-gray-400 hover:text-gray-600 p-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto">
+                        <div class="bg-gray-50 rounded-2xl p-4 mb-6">
+                            <h4 class="font-semibold text-gray-700 mb-2" data-en="Full Prompt:" data-fa="پرامپت کامل:">پرامپت کامل:</h4>
+                            <p id="prompt-modal-text" class="text-gray-800 leading-relaxed font-mono text-sm"></p>
+                        </div>
+                    </div>
+                    
+                    <button id="prompt-modal-copy" class="w-full bg-black hover:opacity-80 text-white py-3 px-6 rounded-2xl font-semibold transition-all duration-200" data-en="Copy Prompt" data-fa="کپی پرامپت">
+                        کپی پرامپت
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Authentication Modals -->
     <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4">
             <!-- Login Form -->
             <div id="login-form">
                 <h3 class="text-2xl font-bold mb-6 text-center" data-en="Login to Your Account" data-fa="ورود به حساب کاربری">ورود به حساب کاربری</h3>
+                
+                <!-- Login Mode Toggle -->
+                <div class="mb-6">
+                    <div class="flex bg-gray-100 rounded-2xl p-1">
+                        <button type="button" id="login-mode-phone" class="flex-1 py-2 px-4 rounded-xl bg-black text-white font-medium transition-all duration-200" data-en="Phone" data-fa="شماره تلفن">
+                            شماره تلفن
+                        </button>
+                        <button type="button" id="login-mode-username" class="flex-1 py-2 px-4 rounded-xl text-gray-600 font-medium transition-all duration-200" data-en="Username" data-fa="نام کاربری">
+                            نام کاربری
+                        </button>
+                    </div>
+                </div>
+                
                 <form id="login-form-element">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Phone Number" data-fa="شماره تلفن">شماره تلفن</label>
-                        <div class="phone-field-container flex flex-col sm:flex-row gap-2">
-                            <select id="login-country-select" class="w-full sm:w-24 px-2 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none bg-white text-xs">
-                                <option value="+98" data-country="IR">🇮🇷 +98</option>
-                                <option value="+93" data-country="AF">🇦🇫 +93</option>
-                                <option value="+355" data-country="AL">🇦🇱 +355</option>
-                                <option value="+213" data-country="DZ">🇩🇿 +213</option>
-                                <option value="+376" data-country="AD">🇦🇩 +376</option>
-                                <option value="+244" data-country="AO">🇦🇴 +244</option>
-                                <option value="+54" data-country="AR">🇦🇷 +54</option>
-                                <option value="+374" data-country="AM">🇦🇲 +374</option>
-                                <option value="+61" data-country="AU">🇦🇺 +61</option>
-                                <option value="+43" data-country="AT">🇦🇹 +43</option>
-                                <option value="+994" data-country="AZ">🇦🇿 +994</option>
-                                <option value="+973" data-country="BH">🇧🇭 +973</option>
-                                <option value="+880" data-country="BD">🇧🇩 +880</option>
-                                <option value="+375" data-country="BY">🇧🇾 +375</option>
-                                <option value="+32" data-country="BE">🇧🇪 +32</option>
-                                <option value="+55" data-country="BR">🇧🇷 +55</option>
-                                <option value="+359" data-country="BG">🇧🇬 +359</option>
-                                <option value="+1" data-country="CA">🇨🇦 +1</option>
-                                <option value="+56" data-country="CL">🇨🇱 +56</option>
-                                <option value="+86" data-country="CN">🇨🇳 +86</option>
-                                <option value="+57" data-country="CO">🇨🇴 +57</option>
-                                <option value="+385" data-country="HR">🇭🇷 +385</option>
-                                <option value="+420" data-country="CZ">🇨🇿 +420</option>
-                                <option value="+45" data-country="DK">🇩🇰 +45</option>
-                                <option value="+20" data-country="EG">🇪🇬 +20</option>
-                                <option value="+372" data-country="EE">🇪🇪 +372</option>
-                                <option value="+358" data-country="FI">🇫🇮 +358</option>
-                                <option value="+33" data-country="FR">🇫🇷 +33</option>
-                                <option value="+995" data-country="GE">🇬🇪 +995</option>
-                                <option value="+49" data-country="DE">🇩🇪 +49</option>
-                                <option value="+30" data-country="GR">🇬🇷 +30</option>
-                                <option value="+36" data-country="HU">🇭🇺 +36</option>
-                                <option value="+354" data-country="IS">🇮🇸 +354</option>
-                                <option value="+91" data-country="IN">🇮🇳 +91</option>
-                                <option value="+62" data-country="ID">🇮🇩 +62</option>
-                                <option value="+964" data-country="IQ">🇮🇶 +964</option>
-                                <option value="+353" data-country="IE">🇮🇪 +353</option>
-                                <option value="+972" data-country="IL">🇮🇱 +972</option>
-                                <option value="+39" data-country="IT">🇮🇹 +39</option>
-                                <option value="+81" data-country="JP">🇯🇵 +81</option>
-                                <option value="+962" data-country="JO">🇯🇴 +962</option>
-                                <option value="+7" data-country="KZ">🇰🇿 +7</option>
-                                <option value="+254" data-country="KE">🇰🇪 +254</option>
-                                <option value="+965" data-country="KW">🇰🇼 +965</option>
-                                <option value="+996" data-country="KG">🇰🇬 +996</option>
-                                <option value="+371" data-country="LV">🇱🇻 +371</option>
-                                <option value="+961" data-country="LB">🇱🇧 +961</option>
-                                <option value="+370" data-country="LT">🇱🇹 +370</option>
-                                <option value="+352" data-country="LU">🇱🇺 +352</option>
-                                <option value="+60" data-country="MY">🇲🇾 +60</option>
-                                <option value="+52" data-country="MX">🇲🇽 +52</option>
-                                <option value="+373" data-country="MD">🇲🇩 +373</option>
-                                <option value="+212" data-country="MA">🇲🇦 +212</option>
-                                <option value="+31" data-country="NL">🇳🇱 +31</option>
-                                <option value="+64" data-country="NZ">🇳🇿 +64</option>
-                                <option value="+234" data-country="NG">🇳🇬 +234</option>
-                                <option value="+47" data-country="NO">🇳🇴 +47</option>
-                                <option value="+968" data-country="OM">🇴🇲 +968</option>
-                                <option value="+92" data-country="PK">🇵🇰 +92</option>
-                                <option value="+51" data-country="PE">🇵🇪 +51</option>
-                                <option value="+63" data-country="PH">🇵🇭 +63</option>
-                                <option value="+48" data-country="PL">🇵🇱 +48</option>
-                                <option value="+351" data-country="PT">🇵🇹 +351</option>
-                                <option value="+974" data-country="QA">🇶🇦 +974</option>
-                                <option value="+40" data-country="RO">🇷🇴 +40</option>
-                                <option value="+7" data-country="RU">🇷🇺 +7</option>
-                                <option value="+966" data-country="SA">🇸🇦 +966</option>
-                                <option value="+381" data-country="RS">🇷🇸 +381</option>
-                                <option value="+65" data-country="SG">🇸🇬 +65</option>
-                                <option value="+421" data-country="SK">🇸🇰 +421</option>
-                                <option value="+386" data-country="SI">🇸🇮 +386</option>
-                                <option value="+27" data-country="ZA">🇿🇦 +27</option>
-                                <option value="+82" data-country="KR">🇰🇷 +82</option>
-                                <option value="+34" data-country="ES">🇪🇸 +34</option>
-                                <option value="+94" data-country="LK">🇱🇰 +94</option>
-                                <option value="+46" data-country="SE">🇸🇪 +46</option>
-                                <option value="+41" data-country="CH">🇨🇭 +41</option>
-                                <option value="+963" data-country="SY">🇸🇾 +963</option>
-                                <option value="+886" data-country="TW">🇹🇼 +886</option>
-                                <option value="+992" data-country="TJ">🇹🇯 +992</option>
-                                <option value="+66" data-country="TH">🇹🇭 +66</option>
-                                <option value="+216" data-country="TN">🇹🇳 +216</option>
-                                <option value="+90" data-country="TR">🇹🇷 +90</option>
-                                <option value="+993" data-country="TM">🇹🇲 +993</option>
-                                <option value="+380" data-country="UA">🇺🇦 +380</option>
-                                <option value="+971" data-country="AE">🇦🇪 +971</option>
-                                <option value="+44" data-country="GB">🇬🇧 +44</option>
-                                <option value="+1" data-country="US">🇺🇸 +1</option>
-                                <option value="+998" data-country="UZ">🇺🇿 +998</option>
-                                <option value="+84" data-country="VN">🇻🇳 +84</option>
-                                <option value="+967" data-country="YE">🇾🇪 +967</option>
-                            </select>
-                            <input type="tel" id="login-phone" placeholder="9123456789" data-en-placeholder="9123456789" data-fa-placeholder="۹۱۲۳۴۵۶۷۸۹"
-                                   class="w-full sm:flex-1 px-4 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none" required>
+                    <!-- Phone Login Fields -->
+                    <div id="login-phone-fields">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Phone Number" data-fa="شماره تلفن">شماره تلفن</label>
+                            <div class="flex gap-2">
+                                <select id="login-country-select" class="px-3 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none bg-white text-sm">
+                                    <option value="+98" data-country="IR">🇮🇷 +98</option>
+                                    <option value="+1" data-country="US">🇺🇸 +1</option>
+                                </select>
+                                <input type="tel" id="login-phone" placeholder="9123456789" data-en-placeholder="2025551234" data-fa-placeholder="۹۱۲۳۴۵۶۷۸۹"
+                                       class="flex-1 px-4 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none" required>
+                            </div>
                         </div>
                     </div>
+                    
+                    <!-- Username Login Fields -->
+                    <div id="login-username-fields" class="hidden">
+                        <div class="mb-4">
+                            <input type="text" id="login-username" placeholder="نام کاربری" data-en-placeholder="Username" data-fa-placeholder="نام کاربری"
+                                   class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none">
+                        </div>
+                    </div>
+                    
+                    <!-- Password Field -->
                     <div class="mb-6">
                         <div class="relative">
                             <input type="password" id="login-password" placeholder="رمز عبور" data-en-placeholder="Password" data-fa-placeholder="رمز عبور"
@@ -293,6 +284,7 @@
                             </button>
                         </div>
                     </div>
+                    
                     <button type="submit" class="w-full bg-black text-white py-3 rounded-2xl font-medium hover:opacity-80 transition-all duration-200" data-en="Login" data-fa="ورود">
                         ورود
                     </button>
@@ -306,111 +298,49 @@
             <!-- Register Form -->
             <div id="register-form" class="hidden">
                 <h3 class="text-2xl font-bold mb-6 text-center" data-en="Create New Account" data-fa="ایجاد حساب کاربری جدید">ایجاد حساب کاربری جدید</h3>
+                
+                <!-- Register Mode Toggle -->
+                <div class="mb-6">
+                    <div class="flex bg-gray-100 rounded-2xl p-1">
+                        <button type="button" id="register-mode-phone" class="flex-1 py-2 px-4 rounded-xl bg-black text-white font-medium transition-all duration-200" data-en="Phone" data-fa="شماره تلفن">
+                            شماره تلفن
+                        </button>
+                        <button type="button" id="register-mode-username" class="flex-1 py-2 px-4 rounded-xl text-gray-600 font-medium transition-all duration-200" data-en="Username" data-fa="نام کاربری">
+                            نام کاربری
+                        </button>
+                    </div>
+                </div>
+                
                 <form id="register-form-element">
                     <div class="mb-4">
                         <input type="text" id="register-name" placeholder="نام" data-en-placeholder="Name" data-fa-placeholder="نام"
                                class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none" required>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Phone Number" data-fa="شماره تلفن">شماره تلفن</label>
-                        <div class="phone-field-container flex flex-col sm:flex-row gap-2">
-                            <select id="country-select" class="w-full sm:w-24 px-2 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none bg-white text-xs">
-                                <option value="+98" data-country="IR">🇮🇷 Iran +98</option>
-                                <option value="+93" data-country="AF">🇦🇫 Afghanistan +93</option>
-                                <option value="+355" data-country="AL">🇦🇱 Albania +355</option>
-                                <option value="+213" data-country="DZ">🇩🇿 Algeria +213</option>
-                                <option value="+376" data-country="AD">🇦🇩 Andorra +376</option>
-                                <option value="+244" data-country="AO">🇦🇴 Angola +244</option>
-                                <option value="+54" data-country="AR">🇦🇷 Argentina +54</option>
-                                <option value="+374" data-country="AM">🇦🇲 Armenia +374</option>
-                                <option value="+61" data-country="AU">🇦🇺 Australia +61</option>
-                                <option value="+43" data-country="AT">🇦🇹 Austria +43</option>
-                                <option value="+994" data-country="AZ">🇦🇿 Azerbaijan +994</option>
-                                <option value="+973" data-country="BH">🇧🇭 Bahrain +973</option>
-                                <option value="+880" data-country="BD">🇧🇩 Bangladesh +880</option>
-                                <option value="+375" data-country="BY">🇧🇾 Belarus +375</option>
-                                <option value="+32" data-country="BE">🇧🇪 Belgium +32</option>
-                                <option value="+55" data-country="BR">🇧🇷 Brazil +55</option>
-                                <option value="+359" data-country="BG">🇧🇬 Bulgaria +359</option>
-                                <option value="+1" data-country="CA">🇨🇦 Canada +1</option>
-                                <option value="+56" data-country="CL">🇨🇱 Chile +56</option>
-                                <option value="+86" data-country="CN">🇨🇳 China +86</option>
-                                <option value="+57" data-country="CO">🇨🇴 Colombia +57</option>
-                                <option value="+385" data-country="HR">🇭🇷 Croatia +385</option>
-                                <option value="+420" data-country="CZ">🇨🇿 Czech Republic +420</option>
-                                <option value="+45" data-country="DK">🇩🇰 Denmark +45</option>
-                                <option value="+20" data-country="EG">🇪🇬 Egypt +20</option>
-                                <option value="+372" data-country="EE">🇪🇪 Estonia +372</option>
-                                <option value="+358" data-country="FI">🇫🇮 Finland +358</option>
-                                <option value="+33" data-country="FR">🇫🇷 France +33</option>
-                                <option value="+995" data-country="GE">🇬🇪 Georgia +995</option>
-                                <option value="+49" data-country="DE">🇩🇪 Germany +49</option>
-                                <option value="+30" data-country="GR">🇬🇷 Greece +30</option>
-                                <option value="+36" data-country="HU">🇭🇺 Hungary +36</option>
-                                <option value="+354" data-country="IS">🇮🇸 Iceland +354</option>
-                                <option value="+91" data-country="IN">🇮🇳 India +91</option>
-                                <option value="+62" data-country="ID">🇮🇩 Indonesia +62</option>
-                                <option value="+964" data-country="IQ">🇮🇶 Iraq +964</option>
-                                <option value="+353" data-country="IE">🇮🇪 Ireland +353</option>
-                                <option value="+972" data-country="IL">🇮🇱 Israel +972</option>
-                                <option value="+39" data-country="IT">🇮🇹 Italy +39</option>
-                                <option value="+81" data-country="JP">🇯🇵 Japan +81</option>
-                                <option value="+962" data-country="JO">🇯🇴 Jordan +962</option>
-                                <option value="+7" data-country="KZ">🇰🇿 Kazakhstan +7</option>
-                                <option value="+254" data-country="KE">🇰🇪 Kenya +254</option>
-                                <option value="+965" data-country="KW">🇰🇼 Kuwait +965</option>
-                                <option value="+996" data-country="KG">🇰🇬 Kyrgyzstan +996</option>
-                                <option value="+371" data-country="LV">🇱🇻 Latvia +371</option>
-                                <option value="+961" data-country="LB">🇱🇧 Lebanon +961</option>
-                                <option value="+370" data-country="LT">🇱🇹 Lithuania +370</option>
-                                <option value="+352" data-country="LU">🇱🇺 Luxembourg +352</option>
-                                <option value="+60" data-country="MY">🇲🇾 Malaysia +60</option>
-                                <option value="+52" data-country="MX">🇲🇽 Mexico +52</option>
-                                <option value="+373" data-country="MD">🇲🇩 Moldova +373</option>
-                                <option value="+212" data-country="MA">🇲🇦 Morocco +212</option>
-                                <option value="+31" data-country="NL">🇳🇱 Netherlands +31</option>
-                                <option value="+64" data-country="NZ">🇳🇿 New Zealand +64</option>
-                                <option value="+234" data-country="NG">🇳🇬 Nigeria +234</option>
-                                <option value="+47" data-country="NO">🇳🇴 Norway +47</option>
-                                <option value="+968" data-country="OM">🇴🇲 Oman +968</option>
-                                <option value="+92" data-country="PK">🇵🇰 Pakistan +92</option>
-                                <option value="+51" data-country="PE">🇵🇪 Peru +51</option>
-                                <option value="+63" data-country="PH">🇵🇭 Philippines +63</option>
-                                <option value="+48" data-country="PL">🇵🇱 Poland +48</option>
-                                <option value="+351" data-country="PT">🇵🇹 Portugal +351</option>
-                                <option value="+974" data-country="QA">🇶🇦 Qatar +974</option>
-                                <option value="+40" data-country="RO">🇷🇴 Romania +40</option>
-                                <option value="+7" data-country="RU">🇷🇺 Russia +7</option>
-                                <option value="+966" data-country="SA">🇸🇦 Saudi Arabia +966</option>
-                                <option value="+381" data-country="RS">🇷🇸 Serbia +381</option>
-                                <option value="+65" data-country="SG">🇸🇬 Singapore +65</option>
-                                <option value="+421" data-country="SK">🇸🇰 Slovakia +421</option>
-                                <option value="+386" data-country="SI">🇸🇮 Slovenia +386</option>
-                                <option value="+27" data-country="ZA">🇿🇦 South Africa +27</option>
-                                <option value="+82" data-country="KR">🇰🇷 South Korea +82</option>
-                                <option value="+34" data-country="ES">🇪🇸 Spain +34</option>
-                                <option value="+94" data-country="LK">🇱🇰 Sri Lanka +94</option>
-                                <option value="+46" data-country="SE">🇸🇪 Sweden +46</option>
-                                <option value="+41" data-country="CH">🇨🇭 Switzerland +41</option>
-                                <option value="+963" data-country="SY">🇸🇾 Syria +963</option>
-                                <option value="+886" data-country="TW">🇹🇼 Taiwan +886</option>
-                                <option value="+992" data-country="TJ">🇹🇯 Tajikistan +992</option>
-                                <option value="+66" data-country="TH">🇹🇭 Thailand +66</option>
-                                <option value="+216" data-country="TN">🇹🇳 Tunisia +216</option>
-                                <option value="+90" data-country="TR">🇹🇷 Turkey +90</option>
-                                <option value="+993" data-country="TM">🇹🇲 Turkmenistan +993</option>
-                                <option value="+380" data-country="UA">🇺🇦 Ukraine +380</option>
-                                <option value="+971" data-country="AE">🇦🇪 UAE +971</option>
-                                <option value="+44" data-country="GB">🇬🇧 United Kingdom +44</option>
-                                <option value="+1" data-country="US">🇺🇸 United States +1</option>
-                                <option value="+998" data-country="UZ">🇺🇿 Uzbekistan +998</option>
-                                <option value="+84" data-country="VN">🇻🇳 Vietnam +84</option>
-                                <option value="+967" data-country="YE">🇾🇪 Yemen +967</option>
-                            </select>
-                            <input type="tel" id="register-phone" placeholder="9123456789" data-en-placeholder="9123456789" data-fa-placeholder="۹۱۲۳۴۵۶۷۸۹"
-                                   class="w-full sm:flex-1 px-4 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none" required>
+                    
+                    <!-- Phone Register Fields -->
+                    <div id="register-phone-fields">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Phone Number" data-fa="شماره تلفن">شماره تلفن</label>
+                            <div class="flex gap-2">
+                                <select id="country-select" class="px-3 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none bg-white text-sm">
+                                    <option value="+98" data-country="IR">🇮🇷 +98</option>
+                                    <option value="+1" data-country="US">🇺🇸 +1</option>
+                                </select>
+                                <input type="tel" id="register-phone" placeholder="9123456789" data-en-placeholder="2025551234" data-fa-placeholder="۹۱۲۳۴۵۶۷۸۹"
+                                       class="flex-1 px-4 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none" required>
+                            </div>
                         </div>
                     </div>
+                    
+                    <!-- Username Register Fields -->
+                    <div id="register-username-fields" class="hidden">
+                        <div class="mb-4">
+                            <input type="text" id="register-username" placeholder="نام کاربری" data-en-placeholder="Username" data-fa-placeholder="نام کاربری"
+                                   class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none">
+                        </div>
+                    </div>
+                    
+                    <!-- Password Field -->
                     <div class="mb-4">
                         <div class="relative">
                             <input type="password" id="register-password" placeholder="رمز عبور" data-en-placeholder="Password" data-fa-placeholder="رمز عبور"
@@ -426,18 +356,20 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Captcha -->
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Security Code" data-fa="کد امنیتی">کد امنیتی</label>
-                        <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                        <div class="flex gap-3 items-center">
                             <div class="flex-1">
                                 <input type="text" id="captcha-input" placeholder="1234" maxlength="4"
                                        class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:border-black focus:outline-none text-center font-mono text-lg" required>
                             </div>
-                            <div class="flex items-center justify-center gap-2">
-                                <div id="captcha-display" class="bg-gray-100 px-4 py-3 rounded-2xl font-mono text-lg font-bold text-gray-800 select-none min-w-[80px] text-center">
+                            <div class="flex items-center gap-2">
+                                <div id="captcha-display" class="bg-gray-100 px-4 py-3 rounded-2xl font-mono text-lg font-bold text-gray-800 select-none">
                                     1234
                                 </div>
-                                <button type="button" id="refresh-captcha" class="p-2 text-gray-500 hover:text-black transition-colors rounded-xl hover:bg-gray-100">
+                                <button type="button" id="refresh-captcha" class="p-2 text-gray-500 hover:text-black transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                     </svg>
@@ -448,6 +380,7 @@
                             کد ۴ رقمی نمایش داده شده را وارد کنید
                         </p>
                     </div>
+                    
                     <button type="submit" class="w-full bg-black text-white py-3 rounded-2xl font-medium hover:opacity-80 transition-all duration-200" data-en="Register" data-fa="ثبت نام">
                         ثبت نام
                     </button>
@@ -619,64 +552,6 @@
                     <div>
                         <div class="text-2xl font-bold text-black">10K+</div>
                         <div class="text-sm text-gray-600" data-en="Downloads" data-fa="دانلود">دانلود</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Profile Modal -->
-    <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-3xl p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-black" data-en="My Profile" data-fa="پروفایل من">پروفایل من</h3>
-                <button id="close-profile-modal" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="space-y-6">
-                <!-- User Info -->
-                <div class="bg-gray-50 rounded-2xl p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-16 h-16 bg-gradient-to-br from-black to-gray-700 rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 id="profile-name" class="text-xl font-bold text-black"></h4>
-                            <p id="profile-phone" class="text-gray-600"></p>
-                            <p class="text-sm text-gray-500" data-en="Member since" data-fa="عضو از تاریخ">عضو از تاریخ: <span id="profile-date"></span></p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="text-center">
-                            <div id="profile-downloads" class="text-2xl font-bold text-black">0</div>
-                            <div class="text-sm text-gray-600" data-en="Downloads" data-fa="دانلود">دانلود</div>
-                        </div>
-                        <div class="text-center">
-                            <div id="profile-purchases" class="text-2xl font-bold text-black">0</div>
-                            <div class="text-sm text-gray-600" data-en="Purchases" data-fa="خرید">خرید</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Purchased Wallpapers -->
-                <div>
-                    <h5 class="font-bold text-lg mb-4" data-en="My Purchased Wallpapers" data-fa="والپیپرهای خریداری شده من">والپیپرهای خریداری شده من</h5>
-                    <div id="purchased-wallpapers" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <!-- Purchased wallpapers will be loaded here -->
-                    </div>
-                    <div id="no-purchases" class="text-center py-8 text-gray-500 hidden">
-                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                        <p data-en="No purchased wallpapers yet" data-fa="هنوز والپیپری خریداری نکرده‌اید">هنوز والپیپری خریداری نکرده‌اید</p>
-                        <p class="text-sm mt-2" data-en="Browse our collection to find premium wallpapers" data-fa="مجموعه ما را برای یافتن والپیپرهای پریمیوم مرور کنید">مجموعه ما را برای یافتن والپیپرهای پریمیوم مرور کنید</p>
                     </div>
                 </div>
             </div>
