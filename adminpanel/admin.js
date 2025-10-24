@@ -99,8 +99,8 @@ function setupEventListeners() {
     });
     
     // Forms
-    addPromptForm.addEventListener('submit', handleAddPrompt);
-    addWallpaperForm.addEventListener('submit', handleAddWallpaper);
+    addPromptForm.addEventListener('submit', handlePromptSubmit);
+    addWallpaperForm.addEventListener('submit', handleWallpaperSubmit);
     
     // Wallpaper type change
     wallpaperTypeSelect.addEventListener('change', togglePriceSection);
@@ -189,13 +189,36 @@ function togglePriceSection() {
     }
 }
 
+// Global flags to prevent multiple submissions
+let isSubmittingPrompt = false;
+let isSubmittingWallpaper = false;
+
+// Wrapper function to prevent multiple prompt submissions
+function handlePromptSubmit(event) {
+    if (isSubmittingPrompt) {
+        event.preventDefault();
+        return false;
+    }
+    return handleAddPrompt(event);
+}
+
+// Wrapper function to prevent multiple wallpaper submissions
+function handleWallpaperSubmit(event) {
+    if (isSubmittingWallpaper) {
+        event.preventDefault();
+        return false;
+    }
+    return handleAddWallpaper(event);
+}
+
 async function handleAddPrompt(event) {
     event.preventDefault();
     
     // Prevent multiple submissions
-    const submitBtn = addPromptForm.querySelector('button[type="submit"]');
-    if (submitBtn.disabled) return;
+    if (isSubmittingPrompt) return;
     
+    isSubmittingPrompt = true;
+    const submitBtn = addPromptForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     submitBtn.textContent = 'در حال اضافه کردن...';
     
@@ -259,7 +282,8 @@ async function handleAddPrompt(event) {
         console.error('Add prompt error:', error);
         alert('خطا در اضافه کردن پرامپت');
     } finally {
-        // Re-enable button
+        // Re-enable button and reset flag
+        isSubmittingPrompt = false;
         submitBtn.disabled = false;
         submitBtn.textContent = 'اضافه کردن پرامپت';
     }
@@ -269,9 +293,10 @@ async function handleAddWallpaper(event) {
     event.preventDefault();
     
     // Prevent multiple submissions
-    const submitBtn = addWallpaperForm.querySelector('button[type="submit"]');
-    if (submitBtn.disabled) return;
+    if (isSubmittingWallpaper) return;
     
+    isSubmittingWallpaper = true;
+    const submitBtn = addWallpaperForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     submitBtn.textContent = 'در حال اضافه کردن...';
     
@@ -345,7 +370,8 @@ async function handleAddWallpaper(event) {
         console.error('Add wallpaper error:', error);
         alert('خطا در اضافه کردن والپیپر');
     } finally {
-        // Re-enable button
+        // Re-enable button and reset flag
+        isSubmittingWallpaper = false;
         submitBtn.disabled = false;
         submitBtn.textContent = 'اضافه کردن والپیپر';
     }
@@ -459,13 +485,20 @@ async function deletePrompt(promptId) {
             }
         });
         
-        const data = await response.json();
-        
         if (response.ok) {
             alert('پرامپت با موفقیت حذف شد!');
             loadPrompts();
         } else {
-            alert(data.error || 'خطا در حذف پرامپت');
+            // Try to parse JSON, but handle cases where response is empty
+            let errorMessage = 'خطا در حذف پرامپت';
+            try {
+                const data = await response.json();
+                errorMessage = data.error || errorMessage;
+            } catch (jsonError) {
+                // If JSON parsing fails, use the status text or default message
+                errorMessage = response.statusText || errorMessage;
+            }
+            alert(errorMessage);
         }
     } catch (error) {
         console.error('Delete prompt error:', error);
@@ -490,7 +523,16 @@ async function deleteWallpaper(wallpaperId) {
             alert('والپیپر با موفقیت حذف شد!');
             loadWallpapers();
         } else {
-            alert('خطا در حذف والپیپر');
+            // Try to parse JSON, but handle cases where response is empty
+            let errorMessage = 'خطا در حذف والپیپر';
+            try {
+                const data = await response.json();
+                errorMessage = data.error || errorMessage;
+            } catch (jsonError) {
+                // If JSON parsing fails, use the status text or default message
+                errorMessage = response.statusText || errorMessage;
+            }
+            alert(errorMessage);
         }
     } catch (error) {
         console.error('Delete wallpaper error:', error);
