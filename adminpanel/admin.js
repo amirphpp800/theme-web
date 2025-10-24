@@ -192,43 +192,50 @@ function togglePriceSection() {
 async function handleAddPrompt(event) {
     event.preventDefault();
     
-    // Get image source (URL or uploaded file)
-    let imageSource = '';
-    const imageUrlInput = document.getElementById('prompt-image');
-    const imageFileInput = document.getElementById('prompt-image-file');
-    const activeTab = document.querySelector('.image-tab-btn.active')?.dataset.tab;
+    // Prevent multiple submissions
+    const submitBtn = addPromptForm.querySelector('button[type="submit"]');
+    if (submitBtn.disabled) return;
     
-    if (activeTab === 'url') {
-        imageSource = imageUrlInput.value;
-        if (!imageSource) {
-            alert('لطفاً لینک تصویر را وارد کنید!');
-            return;
-        }
-    } else if (activeTab === 'upload') {
-        const file = imageFileInput.files[0];
-        if (!file) {
-            alert('لطفاً فایل تصویر را انتخاب کنید!');
-            return;
-        }
-        try {
-            imageSource = await fileToBase64(file);
-        } catch (error) {
-            alert('خطا در خواندن فایل!');
-            return;
-        }
-    }
-    
-    const promptData = {
-        title: {
-            fa: document.getElementById('prompt-title-fa').value,
-            en: document.getElementById('prompt-title-en').value
-        },
-        prompt: document.getElementById('prompt-text').value,
-        image: imageSource,
-        imageType: activeTab // 'url' or 'upload'
-    };
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'در حال اضافه کردن...';
     
     try {
+        // Get image source (URL or uploaded file)
+        let imageSource = '';
+        const imageUrlInput = document.getElementById('prompt-image');
+        const imageFileInput = document.getElementById('prompt-image-file');
+        const activeTab = document.querySelector('.image-tab-btn.active')?.dataset.tab;
+        
+        if (activeTab === 'url') {
+            imageSource = imageUrlInput.value;
+            if (!imageSource) {
+                alert('لطفاً لینک تصویر را وارد کنید!');
+                return;
+            }
+        } else if (activeTab === 'upload') {
+            const file = imageFileInput.files[0];
+            if (!file) {
+                alert('لطفاً فایل تصویر را انتخاب کنید!');
+                return;
+            }
+            try {
+                imageSource = await fileToBase64(file);
+            } catch (error) {
+                alert('خطا در خواندن فایل!');
+                return;
+            }
+        }
+        
+        const promptData = {
+            title: {
+                fa: document.getElementById('prompt-title-fa').value,
+                en: document.getElementById('prompt-title-en').value
+            },
+            prompt: document.getElementById('prompt-text').value,
+            image: imageSource,
+            imageType: activeTab // 'url' or 'upload'
+        };
+        
         const response = await fetch('/api/admin/prompts', {
             method: 'POST',
             headers: {
@@ -251,57 +258,69 @@ async function handleAddPrompt(event) {
     } catch (error) {
         console.error('Add prompt error:', error);
         alert('خطا در اضافه کردن پرامپت');
+    } finally {
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'اضافه کردن پرامپت';
     }
 }
 
 async function handleAddWallpaper(event) {
     event.preventDefault();
     
-    // Get image source (URL or uploaded file)
-    let imageSource = '';
-    const imageUrlInput = document.getElementById('wallpaper-image');
-    const imageFileInput = document.getElementById('wallpaper-image-file');
-    const activeTab = document.querySelector('.wallpaper-image-tab-btn.active')?.dataset.tab;
+    // Prevent multiple submissions
+    const submitBtn = addWallpaperForm.querySelector('button[type="submit"]');
+    if (submitBtn.disabled) return;
     
-    if (activeTab === 'url') {
-        imageSource = imageUrlInput.value;
-        if (!imageSource) {
-            alert('لطفاً لینک تصویر را وارد کنید!');
-            return;
-        }
-    } else if (activeTab === 'upload') {
-        const file = imageFileInput.files[0];
-        if (!file) {
-            alert('لطفاً فایل تصویر را انتخاب کنید!');
-            return;
-        }
-        try {
-            imageSource = await fileToBase64(file);
-        } catch (error) {
-            alert('خطا در خواندن فایل!');
-            return;
-        }
-    }
-    
-    const wallpaperType = document.getElementById('wallpaper-type').value;
-    const price = wallpaperType === 'premium' ? parseInt(document.getElementById('wallpaper-price').value) : null;
-    
-    const wallpaperData = {
-        title: {
-            fa: document.getElementById('wallpaper-title-fa').value,
-            en: document.getElementById('wallpaper-title-en').value
-        },
-        image: imageSource,
-        imageType: activeTab, // 'url' or 'upload'
-        type: wallpaperType,
-        resolution: document.getElementById('wallpaper-resolution').value,
-        price: price ? {
-            fa: `${price} تومان`,
-            en: `${price} IRR`
-        } : null
-    };
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'در حال اضافه کردن...';
     
     try {
+        // Get image source (URL or uploaded file)
+        let imageSource = '';
+        const imageUrlInput = document.getElementById('wallpaper-image');
+        const imageFileInput = document.getElementById('wallpaper-image-file');
+        const activeTab = document.querySelector('.wallpaper-image-tab-btn.active')?.dataset.tab;
+        
+        if (activeTab === 'url') {
+            imageSource = imageUrlInput.value;
+            if (!imageSource) {
+                alert('لطفاً لینک تصویر را وارد کنید!');
+                return;
+            }
+        } else if (activeTab === 'upload') {
+            const file = imageFileInput.files[0];
+            if (!file) {
+                alert('لطفاً فایل تصویر را انتخاب کنید!');
+                return;
+            }
+            try {
+                imageSource = await fileToBase64(file);
+            } catch (error) {
+                alert('خطا در خواندن فایل!');
+                return;
+            }
+        }
+        
+        const wallpaperType = document.getElementById('wallpaper-type').value;
+        const price = wallpaperType === 'premium' ? parseInt(document.getElementById('wallpaper-price').value) : null;
+        
+        const wallpaperData = {
+            title: {
+                fa: document.getElementById('wallpaper-title-fa').value,
+                en: document.getElementById('wallpaper-title-en').value
+            },
+            image: imageSource,
+            imageType: activeTab, // 'url' or 'upload'
+            downloadLink: document.getElementById('wallpaper-download-link').value,
+            type: wallpaperType,
+            resolution: document.getElementById('wallpaper-resolution').value,
+            price: price ? {
+                fa: `${price} تومان`,
+                en: `${price} IRR`
+            } : null
+        };
+        
         const response = await fetch('/api/admin/wallpapers', {
             method: 'POST',
             headers: {
@@ -325,6 +344,10 @@ async function handleAddWallpaper(event) {
     } catch (error) {
         console.error('Add wallpaper error:', error);
         alert('خطا در اضافه کردن والپیپر');
+    } finally {
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'اضافه کردن والپیپر';
     }
 }
 
@@ -405,6 +428,11 @@ function displayWallpapers(wallpapers) {
             <img src="${wallpaper.image}" alt="${wallpaper.title.fa}" class="w-full h-32 object-cover rounded-xl mb-3">
             <h4 class="font-medium text-black mb-1">${wallpaper.title.fa}</h4>
             <p class="text-sm text-gray-600 mb-2">${wallpaper.title.en}</p>
+            <div class="mb-2">
+                <a href="${wallpaper.downloadLink}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 underline">
+                    لینک دانلود
+                </a>
+            </div>
             <div class="flex items-center justify-between">
                 <span class="text-xs ${wallpaper.type === 'free' ? 'text-green-600' : 'text-purple-600'} font-medium">
                     ${wallpaper.type === 'free' ? 'رایگان' : wallpaper.price.fa}
@@ -431,11 +459,13 @@ async function deletePrompt(promptId) {
             }
         });
         
+        const data = await response.json();
+        
         if (response.ok) {
             alert('پرامپت با موفقیت حذف شد!');
             loadPrompts();
         } else {
-            alert('خطا در حذف پرامپت');
+            alert(data.error || 'خطا در حذف پرامپت');
         }
     } catch (error) {
         console.error('Delete prompt error:', error);
@@ -545,12 +575,7 @@ function handleFileSelect(event, type) {
         return;
     }
     
-    const maxSize = type === 'wallpaper' ? 10 * 1024 * 1024 : 5 * 1024 * 1024; // 10MB for wallpapers, 5MB for prompts
-    if (file.size > maxSize) {
-        const maxSizeMB = maxSize / (1024 * 1024);
-        alert(`حجم فایل نباید بیشتر از ${maxSizeMB}MB باشد!`);
-        return;
-    }
+    // File size validation removed - no limit
     
     // Show preview
     showFilePreview(file, type);
