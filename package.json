@@ -1,0 +1,32 @@
+{
+  "name": "imagera",
+  "version": "1.0.0",
+  "description": "AI Prompts & Wallpapers Platform - مجموعه پرامپت‌ها و والپیپرهای هوش مصنوعی",
+  "main": "index.html",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler preview"
+  },
+  "keywords": [
+    "ai",
+    "prompts",
+    "wallpapers",
+    "persian",
+    "cloudflare-workers",
+    "tailwindcss"
+  ],
+  "author": "iMagera Team",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/imagera.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/imagera/issues"
+  },
+  "homepage": "https://imagera.com"
+}

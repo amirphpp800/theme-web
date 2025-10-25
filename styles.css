@@ -1,20 +1,12 @@
 /* Clean iPhone-like design styles */
 
-/* Optimized transitions - only for specific properties */
-.nav-btn, button, input, .prompt-card, .wallpaper-card {
-    transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* Remove expensive transitions from all elements */
-* {
-    transition: none;
-}
+/* Smooth transitions for all elements */
+ 
 
 /* Simple fade-in for cards */
 .prompt-card, .wallpaper-card {
     opacity: 1;
     transform: none;
-    will-change: transform;
 }
 
 /* Section visibility with smooth transitions */
@@ -141,9 +133,9 @@ main {
 
 /* Image placeholder */
 .image-placeholder {
-    background: linear-gradient(45deg, #f9fafb 25%, transparent 25%),
-                linear-gradient(-45deg, #f9fafb 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #f9fafb 75%),
+    background: linear-gradient(45deg, #f9fafb 25%, transparent 25%), 
+                linear-gradient(-45deg, #f9fafb 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #f9fafb 75%), 
                 linear-gradient(-45deg, transparent 75%, #f9fafb 75%);
     background-size: 20px 20px;
     background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
@@ -156,7 +148,7 @@ main {
 
 /* Font switching for English */
 .en-font {
-    font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', Arial, sans-serif !important;
+    font-family: 'Apple System', -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .en-font * {
@@ -187,20 +179,20 @@ main {
         padding-left: 1rem;
         padding-right: 1rem;
     }
-
+    
     h1 {
         font-size: 1.5rem;
     }
-
+    
     h2 {
         font-size: 2.5rem;
     }
-
+    
     .nav-btn {
         padding: 0.75rem 1.5rem;
         font-size: 0.875rem;
     }
-
+    
     .prompt-card, .wallpaper-card {
         border-radius: 1rem;
     }
@@ -210,7 +202,7 @@ main {
     h2 {
         font-size: 2rem;
     }
-
+    
     .grid {
         gap: 1rem;
     }
@@ -222,7 +214,11 @@ main {
     margin-left: 0;
 }
 
-[dir="rtl"] .space-x-4 > * + *,
+[dir="rtl"] .space-x-4 > * + * {
+    margin-right: 1rem;
+    margin-left: 0;
+}
+
 [dir="rtl"] .space-x-8 > * + * {
     margin-right: 2rem;
     margin-left: 0;
@@ -239,13 +235,13 @@ main {
 }
 
 /* Clean input styles */
-input[type="text"], input[type="email"], input[type="tel"], input[type="password"], textarea, select {
+input[type="text"] {
     border-radius: 1rem;
     border: 1px solid #e5e7eb;
     transition: all 0.2s ease;
 }
 
-input:focus, textarea:focus, select:focus {
+input[type="text"]:focus {
     border-color: black;
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
 }
@@ -255,32 +251,25 @@ button {
     border-radius: 1rem;
     font-weight: 500;
     transition: all 0.2s ease;
-    cursor: pointer;
 }
 
-button:hover:not(:disabled) {
+button:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-button:active:not(:disabled) {
+button:active {
     transform: translateY(0);
-}
-
-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
 }
 
 /* Language toggle - clean design */
 #lang-toggle {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
 }
 
 #lang-toggle:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* No header animations - clean and immediate */
@@ -334,17 +323,17 @@ header .user-avatar {
         background-size: 0.75em 0.75em;
         background-position: right 0.25rem center;
     }
-
+    
     #register-phone {
         font-size: 16px; /* Prevents zoom on iOS */
     }
-
+    
     /* Stack phone fields vertically on mobile */
     .phone-field-container {
         flex-direction: column;
         gap: 0.5rem;
     }
-
+    
     .phone-field-container > * {
         width: 100%;
     }
@@ -364,92 +353,151 @@ header .user-avatar {
     background-color: #f3f4f6 !important;
 }
 
-/* Password toggle button styles */
-.password-toggle {
+/* Password toggle button styles - Fixed positioning */
+.password-toggle, 
+button[id*="toggle-"][id*="-password"] {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    color: #6b7280;
+    transform: translateY(-50%) !important;
+    color: #9ca3af;
     cursor: pointer;
     z-index: 10;
-    background: none;
-    border: none;
-    padding: 8px;
-    border-radius: 8px;
+    background: none !important;
+    border: none !important;
+    padding: 8px !important;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: color 0.2s ease;
 }
 
-/* Remove hover transform to keep icon static */
-.password-toggle:hover {
-    color: #374151;
+.password-toggle:hover,
+button[id*="toggle-"][id*="-password"]:hover {
+    color: #4b5563 !important;
+    transform: translateY(-50%) !important;
+    background: none !important;
 }
 
-.password-toggle:active {
-    transform: translateY(-50%);
+.password-toggle:focus,
+button[id*="toggle-"][id*="-password"]:focus {
+    outline: none !important;
+    transform: translateY(-50%) !important;
 }
 
 /* RTL/LTR positioning for password toggle */
-[dir="rtl"] .password-toggle {
-    right: 16px;
-    left: auto;
+[dir="rtl"] .password-toggle,
+[dir="rtl"] button[id*="toggle-"][id*="-password"] {
+    left: 4px !important;
+    right: auto !important;
 }
 
-[dir="ltr"] .password-toggle {
-    right: 16px;
-    left: auto;
+[dir="ltr"] .password-toggle,
+[dir="ltr"] button[id*="toggle-"][id*="-password"] {
+    right: 4px !important;
+    left: auto !important;
 }
 
+/* Password input padding adjustments */
 [dir="rtl"] .password-input {
-    padding-right: 3rem !important;
-    padding-left: 1rem !important;
+    padding-left: 3rem !important;
+    padding-right: 1rem !important;
 }
 
 [dir="ltr"] .password-input {
-    padding-left: 1rem !important;
     padding-right: 3rem !important;
+    padding-left: 1rem !important;
 }
 
-/* Ensure password input has proper styling */
-.password-input {
-    position: relative;
+/* Default positioning (for Persian/RTL) */
+.password-toggle,
+button[id*="toggle-"][id*="-password"] {
+    left: 4px;
+    right: auto;
 }
 
-/* Better icon styling */
-.password-toggle svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2;
+/* Override for English/LTR */
+.en-font .password-toggle,
+.en-font button[id*="toggle-"][id*="-password"] {
+    right: 4px !important;
+    left: auto !important;
+}
+
+.en-font .password-input {
+    padding-right: 3rem !important;
+    padding-left: 1rem !important;
+}
+
+/* Additional fixes for password toggle positioning */
+.password-toggle svg,
+button[id*="toggle-"][id*="-password"] svg {
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+/* Prevent any transform issues on hover */
+.password-toggle:hover svg,
+button[id*="toggle-"][id*="-password"]:hover svg {
+    transform: none !important;
+}
+
+/* Ensure consistent sizing */
+.password-toggle,
+button[id*="toggle-"][id*="-password"] {
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+    .password-toggle,
+    button[id*="toggle-"][id*="-password"] {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .password-input {
+        padding-left: 3.5rem !important;
+    }
+    
+    .en-font .password-input {
+        padding-right: 3.5rem !important;
+        padding-left: 1rem !important;
+    }
+    
+    [dir="rtl"] .password-input {
+        padding-left: 3.5rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    [dir="ltr"] .password-input {
+        padding-right: 3.5rem !important;
+        padding-left: 1rem !important;
+    }
 }
 
 /* Notification System Styles */
-#notification-container {
-    position: fixed;
-    top: 2rem;
-    right: 2rem;
-    z-index: 9999;
-    max-width: 400px;
-    pointer-events: none;
-}
-
 .notification {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
     background: white;
     border-radius: 1rem;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 1rem 1.25rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     transform: translateX(100%);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0;
-    pointer-events: auto;
-    min-width: 300px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    min-width: 300px;
+    max-width: 400px;
 }
 
 .notification.show {
@@ -463,52 +511,38 @@ header .user-avatar {
 }
 
 .notification-icon {
-    width: 1.25rem;
-    height: 1.25rem;
     flex-shrink: 0;
-    margin-top: 0.125rem;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
 .notification-content {
     flex: 1;
     font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: #1f2937;
     font-weight: 500;
+    line-height: 1.4;
 }
 
 .notification-close {
     flex-shrink: 0;
-    padding: 0.25rem;
-    border-radius: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
     color: #6b7280;
-    transition: all 0.2s ease;
+    cursor: pointer;
+    transition: color 0.2s ease;
     background: none;
     border: none;
-    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .notification-close:hover {
-    background-color: #f3f4f6;
     color: #374151;
 }
 
-.notification-close svg {
-    width: 1rem;
-    height: 1rem;
-}
-
-.notification-progress {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #3b82f6, #06b6d4);
-    border-radius: 0 0 1rem 1rem;
-    transition: width linear;
-}
-
-/* Notification types */
+/* Notification Types */
 .notification.success {
     border-left: 4px solid #10b981;
 }
@@ -541,9 +575,36 @@ header .user-avatar {
     color: #3b82f6;
 }
 
+/* Progress bar for auto-dismiss */
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.1);
+    transition: width linear;
+}
+
+.notification.success .notification-progress {
+    background: #10b981;
+}
+
+.notification.error .notification-progress {
+    background: #ef4444;
+}
+
+.notification.warning .notification-progress {
+    background: #f59e0b;
+}
+
+.notification.info .notification-progress {
+    background: #3b82f6;
+}
+
+/* RTL support for notifications */
 [dir="rtl"] #notification-container {
     right: auto;
-    left: 2rem;
+    left: 1rem;
 }
 
 [dir="rtl"] .notification {
@@ -565,12 +626,12 @@ header .user-avatar {
         right: 1rem;
         max-width: none;
     }
-
+    
     .notification {
         min-width: auto;
         max-width: none;
     }
-
+    
     [dir="rtl"] #notification-container {
         left: 1rem;
         right: 1rem;
@@ -592,66 +653,26 @@ header .user-avatar {
         backdrop-filter: blur(10px);
         background-color: rgba(255, 255, 255, 0.95);
     }
-
+    
     /* Ensure logo is perfectly circular */
     header .w-14.h-14 {
         min-width: 3.5rem;
         min-height: 3.5rem;
     }
-
+    
     /* Better mobile navigation */
     nav {
         backdrop-filter: blur(10px);
         background-color: rgba(255, 255, 255, 0.95);
     }
-
+    
     /* Improved mobile grid spacing */
     .grid {
         gap: 1rem;
     }
-
+    
     /* Better mobile card sizing */
     .prompt-card {
         min-height: 280px;
     }
-}
-
-/* Copy button feedback */
-.copy-btn.copied {
-    background-color: #10b981 !important;
-    color: white !important;
-}
-
-/* Modal backdrop blur */
-.modal-backdrop {
-    backdrop-filter: blur(4px);
-}
-
-/* Image placeholders */
-.image-placeholder {
-    background-color: #f3f4f6;
-}
-
-/* Free and premium badges */
-.free-badge {
-    background-color: #10b981;
-}
-
-.price-badge {
-    background-color: #8b5cf6;
-}
-
-/* Loading states */
-.loading {
-    opacity: 0.7;
-    pointer-events: none;
-}
-
-/* Performance optimizations */
-img {
-    loading: lazy;
-}
-
-.prompt-card img, .wallpaper-card img {
-    content-visibility: auto;
 }

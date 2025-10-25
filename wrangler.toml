@@ -5,13 +5,12 @@ compatibility_date = "2024-10-01"
 # KV namespace binding
 [[env.production.kv_namespaces]]
 binding = "DB"
-id = "your-kv-namespace-id-here" # Replace with actual KV namespace ID
+id = "your-kv-namespace-id-here"
 
 # Environment variables for admin credentials
 [env.production.vars]
 ADMIN_USER = "admin"
 ADMIN_PASS = "your-secure-password-here"
-# توصیه: این اعتبارنامه‌ها را در production تغییر دهید
 
 [env.preview]
 # KV namespace binding for preview
